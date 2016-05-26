@@ -1,0 +1,12 @@
+\select@language {spanish}
+\contentsline {section}{\numberline {1}Introducci\IeC {\'o}n}{3}{section.1}
+\contentsline {section}{\numberline {2}Desarrollo}{3}{section.2}
+\contentsline {subsection}{\numberline {2.1}Informacion y Entropia}{3}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Canal elegido}{4}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Paquetes de red}{4}{subsection.2.3}
+\contentsline {section}{\numberline {3}Metodologia}{4}{section.3}
+\contentsline {section}{\numberline {4}Resultados}{5}{section.4}
+\contentsline {subsection}{\numberline {4.1}Protocolos}{5}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Paquetes ARP}{8}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Paquetes de control ARP}{10}{subsection.4.3}
+\contentsline {section}{\numberline {5}Conclusiones}{10}{section.5}

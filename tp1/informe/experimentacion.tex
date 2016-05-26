@@ -1,0 +1,125 @@
+\section{Experimentación}
+
+\subsection{Metodología}
+
+Los siguientes experimentos fueron generados a partir de archivos de entrada para nuestro algoritmo que siguen ciertas reglas. En todos los casos donde analizamos el tiempo de ejecución de los algoritmos, decidimos generar 5 instancias para el mismo experimento y luego tomar la media. Esto se debe a que el uso del CPU no es uniforme (principalmente causado por el algoritmo de scheduling del SO y el uso de memoria) y lleva a que las mediciones estén sesgadas.
+
+\subsection{Evaluación de los métodos}
+
+\subsubsection{Tiempo de ejecución variando la dimensión}
+
+Para este experimento, decidimos analizar el tiempo de ejecución de nuestro algoritmo en función de la dimensión de la matriz $A$. A priori, dado que ambos algoritmos son \order{n^3} y sólo se están ejecutando sobre una única instancia, esperamos que los tiempos de ejecución sean sumamente similares.
+
+Para la generación de instancias, utilizamos $m = 3$, $n = 3$, $r_i = 10$, $r_e = 100$, $ninst = 1$, con $m$ y $n$ aumentando de a 1. Aumentamos estos valores para incrementar la dimensión de la matriz A, dado que lo relevante al tiempo de ejecución final del algoritmo es la dimensión total, no de donde proviene la misma.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.7]{graficos/dimVariable.pdf}
+\caption{Tiempos de ejecución según dimensión, EG vs LU.}
+\label{timeDim}
+\end{figure}
+
+Como se puede observar en estos gráficos, ambos algoritmos tienen casi los mismos tiempos de ejecución para una dimensión dada. Esto coincide con la teoría.
+
+\pagebreak
+
+\subsubsection{Tiempo de ejecución variando número de instancias}
+
+Para este experimento la idea es ver la diferencia en performance de la eliminación gaussiana y la factorización LU a medida que aumenta el número de instancias, es decir, a medida que cambiamos la matriz $b$. Aunque ambos algoritmos pertenecen a \order{n^3}, esperamos que la factorización LU sea superior a la eliminación gaussiana dado que para la factorización LU el costo adicional de resolver otras instancias es de \order{n^2} (es un simple producto de matrices) mientras que la eliminación gaussiana debe repetir todo el procedimiento en \order{n^3}.
+
+Para generar las instancias utilizadas en el gráfico, estos fueron los valores que utilizamos: $m = 10$, $n = 10$, $r_i = 10$, $r_e = 100$, $ninst = 2$, $ninst$ aumentando de a 2.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.7]{graficos/ninstVariable.pdf}
+\caption{Tiempos de ejecución variando numero de instancias, EG vs LU.}
+\end{figure}
+
+Coincidiendo nuevamente con la teoría, aquí es donde se pueden ver efectivamente las ganancias de la factorización LU. Aunque ambos algoritmos son cúbicos, en este problema la EG se ejecuta en \order{ninst \times n^3} mientras que la factorización LU en \order{n^3 + ninst \times n^2} $\in$ \order{n^3}. Esto se puede ver claramente en el gráfico. Como $n$ está fijo, es razonable que los tiempos de ejecución formen dos rectas.
+
+\newpage
+\subsection{Comportamiento del Sistema}
+
+\subsubsection{Isoterma Empírica}
+
+La idea de los siguientes experimentos es ver como varia la diferencia entre la isoterma empírica y la isoterma numérica a medida que cambiamos el nivel de granularidad, es decir, a medida que cambiamos la cantidad de radios y ángulos. Haremos este análisis para nuestros dos algoritmos de búsqueda.
+
+Una pregunta natural que puede surgir es como obtener la isoterma empírica a partir de una aproximación numérica. Al estar aproximando una ecuación diferencial de forma discreta para encontrar la temperatura, si tendemos la granularidad a valores muy grandes, las aproximaciones de todas las derivadas de primer y segundo orden convergerán a su valor verdadero, ergo el laplaciano convergerá a su valor verdadero y podremos obtener la isoterma empírica con un alto grado de precisión.
+
+\subsubsection{Variando el numero de radios}
+
+En este experimento vamos a evaluar la calidad de las isotermas a medida que aumentamos el número de radios. A priori, esperábamos que la calidad de la solución fuese monótona creciente con el nivel de granularidad, en este caso particular en la cantidad de radios. A su vez, pensábamos que hacer un promedio pesado (weighted) nos iba a acercar más a la isoterma empírica que simplemente utilizando el método lower.
+
+Para este experimento utilizamos instancias con los siguientes parámetros: $m = 8$, $n = 2$, $r_i = 10$, $r_e = 100$, $ninst = 1$, con $m$ aumentando de a 4. 
+
+\begin{figure}[h]
+  \centering
+  \begin{minipage}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{graficos/mVariable_l.pdf}
+    \caption{Algoritmo: Lower}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{graficos/mVariable_w.pdf}
+    \caption{Algoritmo: Weighted}
+  \end{minipage}
+\end{figure}
+
+En contra de lo que pensábamos que iba a suceder, la calidad de la solución no es monótona creciente con el nivel de granularidad. A su vez, se puede ver que el algoritmo de tomar la isoterma justo menor a la que se busca supera ampliamente al método weighted. En un principio pensábamos que nuestros experimentos podían estar mal, pero la realidad es que existe una explicación para estos resultados.
+
+Cuando discretizamos el dominio de búsqueda en coordenadas polares y resolvemos el sistema lineal, lo que estamos haciendo es básicamente buscar una aproximación de la temperatura en cada punto de la discretización. Esta aproximación cambia a medida que variamos la granularidad. A mayor granularidad, la aproximación de la temperatura en cierto punto dado por cualquiera de nuestros algoritmos no es necesariamente mejor. La única forma de garantizar esto es que la nueva discretización no solo pase por los puntos que tenia la vieja discretización, si no que también agregue nuevos puntos. Dada la definición de nuestro problema, esto solo sucede cuando la granularidad en cualquiera de sus dimensiones aumenta en múltiplos de 2. Al observar estos múltiplos, aquí si podremos observar como la isoterma se comporta de la forma en la que nosotros originalmente habíamos esperado.
+
+Otro factor sumamente importante que debemos considerar es el \texttt{trade off} entre calidad de la solución y tiempo de computo (Figura \ref{timeDim}). A medida que aumentamos la cantidad de radios, la ganancia adicional en términos de calidad de la solución es cada vez menor. Sin embargo, dado que los algoritmos para resolver el sistema son \order{n^3}, el tiempo de computo sube de forma cúbica. A fines prácticos no es una buena idea tender la granularidad a infinito dado que aunque la solución numérica tienda a la solución empírica, el tiempo de ejecución seria extremadamente alto. Por supuesto que esto depende de la tolerancia de error que tenga el usuario.
+
+En cuanto a la razón de por que el método lower se comporta mejor que el weighted, conjeturamos que esto sucede debido a que quizás la temperatura no se propaga de forma uniforme en la pared del horno. El método weighted hace un promedio pesado asumiendo uniformidad, y quizá este supuesto es incorrecto.
+
+\pagebreak
+
+\subsubsection{Propagación del calor}
+
+Para evaluar nuestro supuesto de propagación del calor, generaremos instancias con las siguientes características:
+
+\begin{enumerate}
+\item Radio Interno = 10
+\item Radio Externo = 100
+\item Isoterma = 200
+\item Temperatura Externa = 10
+\item Cantidad de Radios = 35
+\item Cantidad de Ángulos = 35
+\end{enumerate}
+
+Para la temperatura se tomó un valor inicial de 250, por cada iteración se multiplicó a este valor inicial por el número de iteraciones. Se generaron 20 instancias distintas con los parámetros indicados, actualizando la temperatura interna de la forma descripta anteriormente.
+
+De esta manera podremos evaluar si al duplicar la temperatura, la distancia de la isoterma empírica al centro del horno efectivamente se duplica o no. A priori, y considerando la experimentación del punto anterior, parece claro que este supuesto es incorrecto. Pensemos esto con un poco de intuición física (le pido disculpas a los físicos por lo siguiente). El calor se transmite entre átomos. Dado que el horno es circular, podemos pensar que la pared del mismo esta compuesto de múltiples capas. Una capa tiene $\pi \times r^2$ átomos. Es decir, para que el calor se transfiera de una capa a otra, se debe transferir desde $\pi \times r^2$ átomos a $\pi \times (r+\epsilon)^2$ átomos. Por lo tanto, dado que la cantidad de átomos entre capas crece de forma cuadrática, el calor no se va a transferir de forma uniforme. De esta forma se podría sacar una fórmula para la propagación del calor entre dos radios y mejorar el promedio pesado, que conjeturamos que será función de la raíz de la distancia entre capas.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.6]{graficos/tempProp_w.pdf}
+\caption{Propagación del calor}
+\label{timeDim}
+\end{figure}
+
+En este gráfico tenemos los multiplos de la temperatura inicial en el eje X, el mismo confirma nuestra intuición física y los resultados de los experimentos anteriores.
+
+\pagebreak
+
+\subsubsection{Variando el numero de ángulos}
+
+Para este experimento, utilizaremos instancias con las siguientes características: $m = 30$, $n = 4$, $r_i = 10$, $r_e = 100$, $ninst = 1$, con $n$ aumentando de a 1.
+
+A partir de las conclusiones del experimento anterior, ya no esperamos que la calidad de la solución mejore monotonamente a medida que aumentamos la cantidad de ángulos.
+
+\begin{figure}[h]
+  \centering
+  \begin{minipage}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{graficos/nVariable_l.pdf}
+    \caption{Algoritmo: Lower}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{graficos/nVariable_w.pdf}
+    \caption{Algoritmo: Weighted}
+  \end{minipage}
+\end{figure}
+
+Como se puede observar, ambos algoritmos tienen una performance sumamente similar y no se observan mejoras significativas en la calidad de las isotermas a medida que aumenta la cantidad de ángulos. Esto se debe a que nuestro caso de prueba fue un caso simétrico, donde para cualquier ángulo las temperaturas para cualquier radio son idénticas. Esto nos trae una conclusión bastante importante: en casos que sean bastante simétricos, tomando como temperatura externa el máximo, tomando solo 1 ángulo y aumentando solo la cantidad de radios es la estrategia óptima para evaluar la integridad estructural de un horno. Bajamos el tiempo de ejecución al no tener que evaluar todos los ángulos explotando la simetría del problema y solo aumentamos la granularidad en la dimensión $m$ relevante.

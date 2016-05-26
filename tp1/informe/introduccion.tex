@@ -1,0 +1,250 @@
+\section{Introducción}
+
+La comunicación es uno de los ejes fundamentales de la humanidad, a lo largo de la historia han aparecido diferentes medios para poder satisfacer esta necesidad, sin embargo el concepto nunca se habia formalizado. En 1948, el matemático e ingeniero Claude E. Shannon propone una definición formal de que es la comunicación desde una punto de vista matemático, donde origen a la \textit{Teoría de la Información}. En este trabajo analizaremos como aplica dicha teoria a un medio de comunicacion real, particularmente uno que sea altamente utilizado y tenga una alta densidad de usuarios.
+
+\section{Desarrollo}
+
+\subsection{Informacion y Entropia}
+
+Como vimos en la introduccion, en 1948 el matematico Claude E. Shannon define formalmente que es la \textit{Informacion} en su publicacion \textit{A Mathematical Theory of Communication}, junto con esta defincion tambien introduce el concepto de \textit{Entropia} en la comunicacion. Primero definimos quienes son los participes en la comunicacion:
+
+\begin{itemize}
+	\item Fuente de Informacion
+	\item Emisor
+	\item Receptor
+	\item Destino de Informacion
+	\item Ruido
+	\item Canal
+\end{itemize}
+
+Los mismos se encuentran conectados de la siguiente forma:
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.6\columnwidth]{graficos/Shannon.pdf}
+\caption{Diagrama de comunicacion}
+\end{center}
+\end{figure}
+
+Para poder establecer una comunicacion punto a punto, es necesario que el emisor y el receptor "`hablen"' un lenguaje en comun. Para poder satisfacer esto, se define un conjunto de simbolos $S = \{ s_1, ..., s_n \}$, con una probabilidad $p(s_i)$ con $1 \leq i \leq n$ asociada a cada uno de ellos, este conjunto representa la totalidad de simbolos que pueden ser transmitidos por el canal. Una vez definido el conjunto, la informacion que se obtiene por simbolo es simplemente $I(s_i) = log(\frac{1}{p(s_i)})$. Se elige el logaritmo como funcion por cumplir con varias condiciones idóneas para calcular la informacion, de las mas interesantes tenemos que:
+
+\begin{itemize}
+	\item Si $s \in S$, entonces $I(s) \geq 0$
+	\item Si $p(s_i) = 1$ para algun $i$, entonces $I(s_i) = 0$, ya que un evento que ocurre siempre no aporta información significativa
+	\item $I(s_i, s_j) \leq I(s_i) + I(s_j)$, la igualdad vale unicamente si los simbolos son independientes
+\end{itemize}
+
+Como podemos apreciar, la funcion logaritmo cumple con todos estos puntos.
+
+En nuestro trabajo analizaremos principalmente la entropia, esta se define como $H(S) = \sum\limits_{i=1}^n p(s_i)I(s_i)$. Esta medida representa la media de informacion obtenida por simbolo en la comunicacion, y se encuentra íntimamente relacionada con las probablidades de cada simbolo, particularmente mientras menos aleatoria sea una red, menor es la entropia. Tambien aplica el mismo razonamiento a la inversa, es decir, mientras mas cerca de la equiprobabilidad esten los simbolos, la entropia aumentara, maximizándose cuando los simbolos sean equiprobables.
+
+%Antes de proceder a describir la metodologia para los experimentos, consideramos pertinente dar una interpretacion de la entropia. Podemos ver que esta medida esta relacionada con la probabilidad de cada simbolo, mientras menos informacion tengamos acerca de los símbolos, es natural asumir que estos se encuentran cerca de la equiprobabilidad. Sin embargo, a medida que tengamos mas conocimiento acerca de las posibilidades de aparición de cada símbolo, la entropia del canal va a bajar, ya que en los simbolos mas comunes no nos van aportar de informacion significativa. Esto lo podemos apreciar comparando los lenguajes basados en alfabeto reducido y los basados en pictogramas, si tomamos el caso del español que esta basado en el alfabeto latino, podemos ver que ciertas letras aparecen con mucho mas frecuencia que otras con lo cual la entropia tiende a ser menor, mientras que en el caso de lenguajes como el chino, al ser tan densos (el chino básico tiene hasta 50000 pictogramas) estimar las probabilidades se vuelve una tarea complicada, llevando a que la entropia sea mayor.
+
+\subsection{Canal elegido}
+
+Para poder tener suficientes datos para hacer un analisis interesante, seria prudente tomar un medio que sea ampliamente usado. Por ello, elegimos utilizar una red del tipo Wi-Fi, los puntos a destacar de la red son:
+
+\begin{itemize}
+	\item En la aplicaciones habituales, estas redes se caracterizan por tener un \textit{nodo} central, el cual se encarga de regular el trafico en la red
+	\item En las redes publicas, los nodos que no son el central no se suelen comunicar entre ellos, estos principalmente se conectan con servidores en internet
+\end{itemize}
+
+\subsection{Paquetes de red}
+
+En la redes la informacion en el canal se transmite en paquetes, estos paquetes tienen varios campos, particularmente nos interesan analizar los paquetes de capa 2 y capa 3. De los paquetes \textit{Ethernet} de capa 2, nos interesa:
+
+\begin{itemize}
+	\item Direccion MAC de origen
+	\item Direccion MAC de destino
+	\item Protocolo del payload, este depende del paquete de capa 3 que se esta transportando, puede ser IPv4, IPv6, ARP, etc.
+\end{itemize}
+
+Por otro lado, de los paquetes de capa 3 nos interesan solamente los ARP. De este tipo de paquetes nos interesan los campos:
+
+\begin{itemize}
+	\item Tipo de operacion
+	\item Direccion MAC del emisor
+	\item Direccion IP del emisor
+	\item Direccion MAC del destinatario
+	\item Direccion IP del destinatario
+\end{itemize}
+
+El fin de los paquetes ARP, es vincular la capa 2 con la capa 3, relacionando las direcciones IP con direcciones MAC fisicas. Para hacer esto el protocolo ARP cuenta con dos operaciones, estas pueden ser \textit{who-has} o \textit{is-at}.
+
+Las operaciones \textit{who-has} sirven para identificar a que direccion MAC fisica corresponda una direccion IP de la red, estos paquetes suelen ser de tipo \textit{broadcast}.
+
+En respuesta a los \textit{who-has}, tenemos las operaciones \textit{is-at}. Una vez que un nodo recibe un paquete de tipo \textit{who-has}, este revisa si la direccion IP del mismo coincide con la suya, en el caso de que lo sea este envia un paquete al nodo que genero el \textit{who-has} para notificarle su direccion MAC fisica.
+
+Para no tener que enviar paquetes ARP por cada paquete IP que se desea enviar, el emisor del \textit{who-has} al recibir el \textit{is-at}, guarda el resultado en una tabla para poder enviar futuros paquetes al mismo destino inmediatamente.
+
+\section{Metodologia}
+
+En el trabajo se pide que analicemos dos fuentes de informacion, estas son $S$ y $S_1$, y tienen la siguiente forma:
+
+\begin{itemize}
+	\item $S$: Comprende a todos los paquetes \textit{Ethernet} que circulan por el canal, se los diferencia por el \textit{protocolo} del payload.
+	\item $S_1$: Se limita a los paquetes \textit{Ethernet} de tipo ARP.
+\end{itemize}
+
+\pagebreak
+
+Para $S_1$ ademas se pide establecer un criterio de diferenciacion, para esto tomamos la conjuncion de las direcciones IP fuente y destino de los paquetes ARP de tipo \textit{who-has}. Elegimos estos paquetes ya que los \textit{is-at} se dan unicamente en respuesta a algun \textit{who-has} anterior, con lo cual estariamos duplicando ciertos paquetes.
+
+Las redes elegidas para \textit{sniffear} fueron las siguientes:
+
+\begin{itemize}
+	\item FibertelZone, en shopping Plaza Oeste Moron (60 min. de captura)
+	\item Laboratorios-DC (30 min. de captura)
+\end{itemize}
+
+Inicialmente la idea era capturar paquetes en una mayor cantidad de redes, sin embargo, nos topamos con que en diferentes redes publicas el trafico no era suficientemente alto, con lo cual la captura de paquetes no era significativa ni suficiente como para hacer un analisis mas exhaustivo. Consideramos que esto se debe en parte al aumento en el uso de Smartphones con redes moviles, junto con la mala fama que tienen las redes Wi-Fi publicas.
+
+\section{Resultados}
+
+\subsection{Protocolos}
+
+Vamos a ver primero la cantidad de paquetes en las redes:
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.8\columnwidth]{graficos/plaza_s1.pdf}
+\caption{Red Plaza Oeste}
+\end{center}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.6\columnwidth]{graficos/dc_s1.pdf}
+\caption{Red Laboratorios DC}
+\end{center}
+\end{figure}
+
+\pagebreak
+
+Como podemos apreciar, los paquetes IPv4 dominan el trafico de la red. A continuacion vamos a ver la informacion por simbolo junto con la entropia:
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.6\columnwidth]{graficos/plaza_inf_s1.pdf}
+\caption{Red Plaza Oeste}
+\end{center}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.8\columnwidth]{graficos/dc_inf_s1.pdf}
+\caption{Red Laboratorios DC}
+\end{center}
+\end{figure}
+
+\pagebreak
+
+La entropia en las redes fue:
+
+\begin{table}[ht]
+\centering
+\caption{Entropia}
+\label{my-label}
+\begin{tabular}{ll}
+\hline
+Red         & Entropia \\ \hline
+Plaza Oeste & 0.3303   \\
+Laboratorios DC    & 0.4505   \\ \hline
+\end{tabular}
+\end{table}
+
+Como podemos ver, la entropia de la red es bastante baja en ambos, esto se debe a la gran cantidad de paquetes IPv4 en ambos canales. Otro punto interesante es que en la red unicamente circulan paquetes de tipo ARP, IPv4 o IPv6, si bien esto es esperable en la red del Plaza Oeste nos sorprendió que ocurra también en la red Laboratorios DC, asumimos que allí podríamos encontrar en uso algún protocolo mas esotérico.
+
+Nuestras predicciones indicaban que la mayoría de los paquetes iban a ser de tipo IPv4 por un margen bastante significativo, esto se corresponde con que la probabilidad de dicho paquete iba a ser mucho mas alta que el resto, con lo cual la información de dichos paquetes iba a ser considerablemente menor. Como la diferencia es tan amplia, por un margen muy significativo, consideramos al protocolo IPv4 como símbolo distinguido.
+
+\pagebreak
+
+\subsection{Paquetes ARP}
+
+Como vimos en el desarrollo, definimos los símbolos de $S_1$ como las direcciones IP de origen y destino de los paquetes ARP. Por motivos de presentación, nos limitamos a graficar unicamente las diez direcciones que mas aparecieron durante el \textit{sniffeo}. Los resultados fueron:
+
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.6\columnwidth]{graficos/plaza_top_s2.pdf}
+\caption{Red Plaza Oeste}
+\end{center}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.6\columnwidth]{graficos/dc_top_s2.pdf}
+\caption{Red Laboratorios DC}
+\end{center}
+\end{figure}
+
+\pagebreak
+
+Una de las suposiciones que teníamos, era que por el funcionamiento de la red Wi-Fi, la gran mayoría de los paquetes irían dirigidos hacia un nodo principal, el cual después se encargaría de redirigirlos al destino apropiado. Como podemos ver, esto ocurrió en ambos casos, hay un nodo el cual tiene muchas mas apariciones que el resto.
+
+A pesar de que los resultados satisfacían nuestras teorías, nos sorprendió que el margen de diferencia entre el nodo principal y el resto no sea mayor, con lo cual los otros nodos también están enviando paquetes ARP a nodos que no son el principal. Esto sera estudiado mas adelante, primero vamos a ver la información en ambos canales, nuevamente limitándonos a las diez direcciones que mas aparecieron:
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.6\columnwidth]{graficos/plaza_top_inf_s2.pdf}
+\caption{Red Plaza Oeste}
+\end{center}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.6\columnwidth]{graficos/dc_top_inf_s2.pdf}
+\caption{Red Laboratorios DC}
+\end{center}
+\end{figure}
+
+\pagebreak
+
+La entropia para estas dos redes fue:
+
+\begin{table}[ht]
+\centering
+\caption{Entropia}
+\label{my-label}
+\begin{tabular}{ll}
+\hline
+Red         & Entropia \\ \hline
+Plaza Oeste & 3.1724   \\
+Laboratorios DC    & 4.6459   \\ \hline
+\end{tabular}
+\end{table}
+
+Una cosa interesante a destacar, es que la entropia es mucho mayor tomando como símbolos las direcciones IP que los tipos de protocolos, esto ocurre en ambas redes. Esto creemos que se debe principalmente a las siguientes razones:
+
+\begin{itemize}
+	\item La cantidad de protocolos es considerablemente menor que la cantidad de direcciones IP posibles, en la practica unicamente vimos tres protocolos en uso
+	\item En las redes Wi-Fi, vimos que los nodos que suelen enviar paquetes de tipo \textit{who-has} son aquellos que quieren conectarse a la red, estos suelen tener direcciones IP diferentes a las que ya se encuentran en el sistema, con lo que tenemos que agregar un nuevo símbolo
+	\item Es posible que el tamaño de la muestra no haya sido suficiente, y que se necesiten mas tiempo de \textit{sniffeo} para poder calcular bien la entropia
+\end{itemize}
+
+Este ultimo punto es particularmente interesante para nosotros, ya que es posible que la muestra tomada no sea significativa del trafico de la red y no sea suficiente para estimar las probabilidades, efectivamente afectando la entropia de la red. También seria interesar estudiar si las políticas de asignación de IP de la red y el uso de la misma terminan amortizando el segundo punto, ya que si el sistema reasigna direcciones siempre que puede, mientras mas grande sea la muestra la diferencia entre el nodo principal y el resto potencialmente seria mayor.
+
+En general, la red respondió de la manera que esperábamos, pudimos identificar un nodo principal el cual aparece en muchas mas ocasiones que el resto en ambas redes. Si bien la diferencia en cantidad de apariciones de dichos nodos respecto al resto no fue tan significativa, creemos que fue suficiente como para marcarlos como símbolos distinguidos en sus respectivos canales.
+
+\subsection{Paquetes de control ARP}
+
+En la sección anterior hablamos de paquetes que no eran enviados hacia el nodo principal, ademas de esto, nos dimos cuenta que varios de ellos tenian una forma bastante particular, tras consultar diferentes recursos nos dimos cuenta que varios de ellos eran paquetes de control. Nos topamos con los siguientes:
+
+\begin{itemize}
+	\item Dirección IP \texttt{0.0.0.0}: Estos paquetes se utilizan para revisar si una dirección IP se encuentra en uso por algún host, la idea es que un nodo al recibir una dirección IP para usar, envia este paquete, y si recibe un \textit{is-at} de otro nodo quiere decir que la dirección que pretendía utilizar esta en uso
+	\item Misma dirección IP de fuente y destino: Este es un paquete bastante particular, sirve para que los diferentes hosts en la red tengan sus tablas de dirección IP y MAC actualizadas. La idea es que al recibir el paquete y verificar que las direcciones origen y destino son iguales, el host revisa si tiene la dirección MAC en su tabla, en caso de tenerla actualiza la dirección IP almacenada si es que esta cambio por la dirección que figura en el paquete. Mantener las relaciones IP y MAC actualizadas es sumemente importante en la red, ya que eso puede ahorrarnos una cantidad significativa de tiempo a la hora de manejar el trafico.
+\end{itemize}
+
+Las apariciones de estos paquetes consideramos que terminaron quitandole bastante peso al nodo central respecto a los demás, haciendo que la entropia sea mayor.
+
+\section{Conclusiones}
+
+Es bastante interesante ver como los diferentes conceptos de teoria de la informacion aplican en canales reales, particularmente considerando que fueron planteados en 1948 cuando las redes modernas no existian. Desde el punto de vista de las redes Wi-Fi puntualmente, vimos como la comunicacion es sumamente centralizada y dominada por IPv4, lo primero se puede ver claramente en los paquetes ARP los cuales en nuestras muestras estan en gran parte dirigidos a un unico nodo, mientras que lo segundo no solamente se ve a simple vista, sino que ademas es esperable considerando que la Internet funciona sobre IPv4.
+
+Como estudio a futuro, seria interesante hacer un \textit{sniffeo} durante el lapso de uno o mas dias, para poder ver si las proporciones obtenidas con la fuente $S_1$ se mantienen, o si eventualmente el nodo principal se impone respecto al resto aumentando aun mas la diferencia entre estos.
+
+%\subsection{Proporcion de trafico local e Internet}
+%
+%METER ESTO EN DISTINCION DE NODOS
+%
+%Nos parecio tambien interesante analizar la proporcion de trafico local respecto al trafico que va hacia Internet, nuestra teoria es que en la red publica del Plaza Oeste todo el trafico se destina a Internet a traves del enrutador. Por otro lado, la red Laboratorios-DC, al ser de la facultad, seguramente tengo mas trafico interno.
