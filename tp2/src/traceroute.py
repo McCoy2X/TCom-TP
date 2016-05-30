@@ -26,11 +26,13 @@ def myTraceRoute(url):
 		print "%s: Name or service not known" % url
 		return
 
-	print "traceroute to %s (%s)" % (url, host)
+	print "traceroute to %s (%s), 20 hops max" % (url, host)
 
 	data  = dict()
 	edges = Set()
+	exportTable = list()
 
+	hops = 1
 	ttl = 1;
 	resp_type = -1
 	repeat = 5
@@ -38,7 +40,7 @@ def myTraceRoute(url):
 	addr_from = '192.168.0.9'
 	addr_to   = ''
 
-	while resp_type != 0:
+	while resp_type != 0 and hops <= 40:
 
 		d = dict()
 		failed = 0
@@ -96,6 +98,9 @@ def myTraceRoute(url):
 		print '%s' % ttl,
 		print ' *'*failed,
 
+		if failed > 0:
+			exportTable.append((ttl, ' *'*failed, "-"))
+
 		for key in d:
 
 			try:
@@ -111,13 +116,20 @@ def myTraceRoute(url):
 			# save data for intercontinental detection
 			data[key] = (ttl, d[key])
 
+			exportTable.append((ttl, host, np.mean(d[key])))
+
 
 		print ''
 
+		hops += 1
 		ttl += 1
 		failed = 0
 
 	printGraph(edges)
+
+	print "Hop & Host & Avg. RTT \\\\ \\midrule"
+	for row in exportTable:
+		print "%s & %s & %s ms\\\\" % (row[0], row[1], row[2])
 
 	# print ans[ICMP].pdfdump('packets.pdf',layer_shift=1)
 	return data
