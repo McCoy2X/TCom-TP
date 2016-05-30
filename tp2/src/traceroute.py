@@ -12,6 +12,13 @@ import matplotlib.pyplot as plt
 import math
 from sets import Set
 import networkx as nx
+from geoip import geolite2
+
+# Dependencies
+# pyx, networkx
+# pip install python-geoip
+# sudo pip install python-geoip-geolite2
+# sudo apt-get install python-mpltoolkits.basemap
 
 # http://www.secdev.org/projects/scapy/doc/usage.html
 # ICMP: http://www.ietf.org/rfc/rfc792.txt
@@ -31,6 +38,8 @@ def myTraceRoute(url):
 	data  = dict()
 	edges = Set()
 	exportTable = list()
+	# latitude = list() # wanted to plot all coords on a 'hackish' looking map, failed to import lib :(
+	# longitude = list()
 
 	hops = 1
 	ttl = 1;
@@ -99,7 +108,7 @@ def myTraceRoute(url):
 		print ' *'*failed,
 
 		if failed > 0:
-			exportTable.append((ttl, ' *'*failed, "-"))
+			exportTable.append((ttl, ' *'*failed, "-", "-"))
 
 		for key in d:
 
@@ -113,10 +122,18 @@ def myTraceRoute(url):
 			for elem in d[key]:
 				print " %.3f ms" % elem,
 
-			# save data for intercontinental detection
-			data[key] = (ttl, d[key])
+			match = geolite2.lookup(key)
 
-			exportTable.append((ttl, host, np.mean(d[key])))
+			# latitude.append(match.location[0])
+			# longitude.append(match.location[1])
+
+			if match is not None:
+				print " (%s, %s)" % (match.country, match.continent),
+
+			# save data for intercontinental detection
+			data[key] = (ttl, np.mean(d[key]))
+
+			exportTable.append((ttl, host, np.mean(d[key]), key))
 
 
 		print ''
@@ -125,14 +142,27 @@ def myTraceRoute(url):
 		ttl += 1
 		failed = 0
 
-	printGraph(edges)
+	# printGraph(edges)
 
-	print "Hop & Host & Avg. RTT \\\\ \\midrule"
+	print "Hop & Avg. RTT & IP Address & Host name & Location\\\\ \\midrule"
 	for row in exportTable:
-		print "%s & %s & %s ms\\\\" % (row[0], row[1], row[2])
+		if row[3] == "-":
+			print "%s & %s &  &  &  \\\\" % (row[0], row[1])
+		else:
+			match = geolite2.lookup(row[3])
+
+			if match is not None:
+				country = match.country
+				continent = match.continent
+			else:
+				country = ""
+				continent = ""
+
+			print "%s & %s & %s ms & %s & %s, %s\\\\" % (row[0], row[2], row[3], row[1], country, continent)
 
 	# print ans[ICMP].pdfdump('packets.pdf',layer_shift=1)
 	return data
+
 
 def printGraph(edges):
 
@@ -184,8 +214,6 @@ def printGraph(edges):
 	nx.draw(G, pos)
 	nx.draw_networkx_labels(G, pos, labels, font_size=16)
 
-
-
 	plt.show()
 
 def detectIntercontinentalHops(data):
@@ -203,22 +231,23 @@ def detectIntercontinentalHops(data):
 		for key in data:
 			ttl = data[key][0]
 			t.append(ttl)
-			for elem in data[key][1]:
-				x.append(ttl);
-				y.append(elem);
+
+			x.append(ttl)
+			y.append(data[key][1]) # list of averages
+
+			# for elem in data[key][1]:
+			# 	x.append(ttl);
+			# 	y.append(elem);
 
 		x = np.array(x)
 		y = np.array(y)
-		coefs, residual, _, _, _ = np.polyfit(x, y, degree, full=True)
+		coefs = np.polyfit(x, y, degree)
 		p = np.poly1d(coefs)
 
-		if len(residual) == 0:
-			return
+		df = len(x) - (degree + 1)
+		residuals = y - np.polyval(coefs, x)
 
-		df = len(x) - degree + 1
-		se = math.sqrt(residual / df)
-
-		residuals = np.polyval(coefs, x) - y
+		se = math.sqrt(np.sum(np.square(residuals)) / df)
 		std_residuals = residuals / se
 
 		# xp = np.linspace(1, max(t), 100)
@@ -233,17 +262,16 @@ def detectIntercontinentalHops(data):
 		# plt.xlabel('Hops')
 		# plt.ylabel('Standarized Residual')
 
-		# plt.show()
-
+		plt.show()
 
 		std_residuals = np.absolute(std_residuals);
 		outlier = max(std_residuals)
 		time    = y[np.where(std_residuals == outlier)]
 
-		if outlier > 2: # passes first test
+		if outlier > 1.7: # passes first test
 
 			for key in data:
-				if time in data[key][1]:
+				if time == data[key][1]:
 					print "Hop %s (%s) is intercontinental." % (data[key][0], key)
 					del data[key]
 					break
