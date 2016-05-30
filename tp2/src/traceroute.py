@@ -10,6 +10,8 @@ from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from sets import Set
+import networkx as nx
 
 # http://www.secdev.org/projects/scapy/doc/usage.html
 # ICMP: http://www.ietf.org/rfc/rfc792.txt
@@ -26,10 +28,15 @@ def myTraceRoute(url):
 
 	print "traceroute to %s (%s)" % (url, host)
 
-	data = dict()
+	data  = dict()
+	edges = Set()
+
 	ttl = 1;
 	resp_type = -1
-	repeat = 3
+	repeat = 5
+
+	addr_from = '192.168.0.9'
+	addr_to   = ''
 
 	while resp_type != 0:
 
@@ -75,6 +82,9 @@ def myTraceRoute(url):
 				else:
 					d[resp_src] = [elapsedTime]
 
+				addr_to = resp_src
+				edges.add((addr_from, addr_to))
+				addr_from = addr_to
 
 				# ans[ICMP][0][1].show()
 
@@ -107,8 +117,64 @@ def myTraceRoute(url):
 		ttl += 1
 		failed = 0
 
+	printGraph(edges)
+
 	# print ans[ICMP].pdfdump('packets.pdf',layer_shift=1)
 	return data
+
+def printGraph(edges):
+
+	i = 0
+	ids = dict()
+
+	for e in edges:
+		if e[0] not in ids:
+			ids[e[0]] = i
+			i += 1
+		if e[1] not in ids:
+			ids[e[1]] = i
+			i += 1
+
+
+	G = nx.Graph()
+
+	# for j in range(0, i+1)
+	# 	G.add_node(j)
+
+	labels = {}
+	for e in edges:
+		edge_from = ids[e[0]]
+		edge_to   = ids[e[1]]
+		
+		# labels
+		try:
+			host_from = socket.gethostbyaddr(e[0])[0]
+		except:
+			host_from = e[0]
+
+		try:
+			host_to = socket.gethostbyaddr(e[1])[0]
+		except:
+			host_to = e[1]
+
+		if e[0] == '192.168.0.9':
+			host_from = 'origin'
+
+		labels[edge_from] = host_from
+		labels[edge_to]   = host_to
+
+		G.add_node(edge_from)
+		G.add_node(edge_to)
+		G.add_edge(edge_from, edge_to)
+
+
+	pos = nx.spring_layout(G) # positions for all nodes
+	nx.draw(G, pos)
+	nx.draw_networkx_labels(G, pos, labels, font_size=16)
+
+
+
+	plt.show()
 
 def detectIntercontinentalHops(data):
 
@@ -134,25 +200,28 @@ def detectIntercontinentalHops(data):
 		coefs, residual, _, _, _ = np.polyfit(x, y, degree, full=True)
 		p = np.poly1d(coefs)
 
+		if len(residual) == 0:
+			return
+
 		df = len(x) - degree + 1
 		se = math.sqrt(residual / df)
 
 		residuals = np.polyval(coefs, x) - y
 		std_residuals = residuals / se
 
-		xp = np.linspace(1, max(t), 100)
-		plt.figure(1)
-		plt.subplot(211)
-		plt.plot(x, y, '.', xp, p(xp), '-')
-		plt.xlabel('Hops')
-		plt.ylabel('Time (ms)')
+		# xp = np.linspace(1, max(t), 100)
+		# plt.figure(1)
+		# plt.subplot(211)
+		# plt.plot(x, y, '.', xp, p(xp), '-')
+		# plt.xlabel('Hops')
+		# plt.ylabel('Time (ms)')
 
-		plt.subplot(212)
-		plt.plot(x, std_residuals, '.')
-		plt.xlabel('Hops')
-		plt.ylabel('Standarized Residual')
+		# plt.subplot(212)
+		# plt.plot(x, std_residuals, '.')
+		# plt.xlabel('Hops')
+		# plt.ylabel('Standarized Residual')
 
-		plt.show()
+		# plt.show()
 
 
 		std_residuals = np.absolute(std_residuals);
