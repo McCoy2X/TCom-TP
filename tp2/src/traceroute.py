@@ -7,6 +7,9 @@ import time
 from subprocess import *
 from pyx import *
 from datetime import datetime
+import numpy as np
+import matplotlib.pyplot as plt
+import math
 
 # http://www.secdev.org/projects/scapy/doc/usage.html
 # ICMP: http://www.ietf.org/rfc/rfc792.txt
@@ -23,6 +26,7 @@ def myTraceRoute(url):
 
 	print "traceroute to %s (%s)" % (url, host)
 
+	data = dict()
 	ttl = 1;
 	resp_type = -1
 	repeat = 3
@@ -76,7 +80,7 @@ def myTraceRoute(url):
 
 			else:
 
-				failed +=1
+				failed += 1
 
 		# print output
 		print '%s' % ttl,
@@ -94,13 +98,78 @@ def myTraceRoute(url):
 			for elem in d[key]:
 				print " %.3f ms" % elem,
 
+			# save data for intercontinental detection
+			data[key] = (ttl, d[key])
+
 
 		print ''
 
 		ttl += 1
 		failed = 0
 
-		# print ans[ICMP].pdfdump('packets.pdf',layer_shift=1)
+	# print ans[ICMP].pdfdump('packets.pdf',layer_shift=1)
+	return data
+
+def detectIntercontinentalHops(data):
+
+	degree = 2
+
+	findOutlier = True
+
+	while findOutlier:
+
+		x = list()
+		y = list()
+		t = list()
+
+		for key in data:
+			ttl = data[key][0]
+			t.append(ttl)
+			for elem in data[key][1]:
+				x.append(ttl);
+				y.append(elem);
+
+		x = np.array(x)
+		y = np.array(y)
+		coefs, residual, _, _, _ = np.polyfit(x, y, degree, full=True)
+		p = np.poly1d(coefs)
+
+		df = len(x) - degree + 1
+		se = math.sqrt(residual / df)
+
+		residuals = np.polyval(coefs, x) - y
+		std_residuals = residuals / se
+
+		xp = np.linspace(1, max(t), 100)
+		plt.figure(1)
+		plt.subplot(211)
+		plt.plot(x, y, '.', xp, p(xp), '-')
+		plt.xlabel('Hops')
+		plt.ylabel('Time (ms)')
+
+		plt.subplot(212)
+		plt.plot(x, std_residuals, '.')
+		plt.xlabel('Hops')
+		plt.ylabel('Standarized Residual')
+
+		plt.show()
+
+
+		std_residuals = np.absolute(std_residuals);
+		outlier = max(std_residuals)
+		time    = y[np.where(std_residuals == outlier)]
+
+		if outlier > 2: # passes first test
+
+			for key in data:
+				if time in data[key][1]:
+					print "Hop %s (%s) is intercontinental." % (data[key][0], key)
+					del data[key]
+					break
+
+		else:
+
+			findOutlier = False
 
 if __name__ == "__main__":
 
@@ -109,4 +178,7 @@ if __name__ == "__main__":
 	else:
 		url = 'www.google.com'
 
-	myTraceRoute(url)
+	data = myTraceRoute(url)
+	detectIntercontinentalHops(data)
+
+	# network topology!
