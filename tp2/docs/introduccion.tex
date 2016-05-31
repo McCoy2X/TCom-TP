@@ -64,6 +64,9 @@ En principio, implementaremos nuestra propia herramienta traceroute utilizando p
 
 Si el paquete llega al destino, el servidor nos enviara un paquete ICMP con el type Echo Reply. Para poder encontrar los diferentes hops en la traza, utilizaremos el parámetro Time To Live del header IP, inicializándolo en 1 y luego aumentándolo hasta que nos respondan con un Echo Reply. Es decir, si la red hasta el destino tiene 10 hops y queremos identificar el hop $i$, tendremos que settear el parametro $TTL = i$.
 
+Cuando un paquete llega a destino, el servidor nos envia otro paquete con. Sin embargo, cuando falla blah.
+
+%Sacar formato de aca: https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol#Control_messages
 
 Notar que no necesariamente el servidor estara disponible o aceptara paquetes ICMP, por lo que tendremos que poner un limite a la cantidad de hops que buscaremos. Caso contrario iteraríamos hasta llegar al limite dado por los 8 bytes del campo TTL, lo cual no tiene sentido practico. Este procedimiento se puede ver un poco mejor en la siguiente imagen:
 

@@ -13,7 +13,7 @@ import math
 from sets import Set
 import networkx as nx
 from geoip import geolite2
-from mpl_toolkits.basemap import Basemap
+
 
 # Dependencies
 # pyx, networkx
@@ -159,7 +159,7 @@ def myTraceRoute(url):
 				country = ""
 				continent = ""
 
-			print "%s & %s & %s ms & %s & %s, %s\\\\" % (row[0], row[2], row[3], row[1], country, continent)
+			print "%s & %s ms & %s & %s & %s, %s\\\\" % (row[0], row[2], row[3], row[1], country, continent)
 
 	# print ans[ICMP].pdfdump('packets.pdf',layer_shift=1)
 	return data

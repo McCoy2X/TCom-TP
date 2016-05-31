@@ -1,45 +1,47 @@
 \section{Experimentos}
 
+Recordar decir como mido el RTT!
+
 \subsection{Caching}
 
 \begin{table}[H]
+\caption{traceroute: google.com sin caching}
 \centering
 \begin{tabular}{@{}lllll@{}}
 \toprule
 Hop & Avg. RTT & IP Address & Host name & Location\\ \midrule
-1 & 10.6688 & 181.169.12.1 ms & 1-12-169-181.fibertel.com.ar & AR, SA\\
+1 & 10.6688 ms & 181.169.12.1 & 1-12-169-181.fibertel.com.ar & AR, SA\\
 2 &  * * * * * &  &  &  \\
 3 &  * * * * * &  &  &  \\
 4 &  * * * * * &  &  &  \\
-5 & 20.2096 & 200.89.160.21 ms & 21-160-89-200.fibertel.com.ar & AR, SA\\
-6 & 14.3278 & 200.89.165.129 ms & 129-165-89-200.fibertel.com.ar & AR, SA\\
-7 & 12.5566 & 200.89.165.150 ms & 150-165-89-200.fibertel.com.ar & AR, SA\\
+5 & 20.2096 ms & 200.89.160.21 & 21-160-89-200.fibertel.com.ar & AR, SA\\
+6 & 14.3278 ms & 200.89.165.129 & 129-165-89-200.fibertel.com.ar & AR, SA\\
+7 & 12.5566 ms & 200.89.165.150 & 150-165-89-200.fibertel.com.ar & AR, SA\\
 8 &  * * * * * &  &  &  \\
-9 & 10.9052 & 209.85.251.86 ms & 209.85.251.86 & US, NA\\
-10 & 40.759 & 209.85.252.42 ms & 209.85.252.42 & US, NA\\
-11 & 38.5816 & 216.239.58.221 ms & 216.239.58.221 & US, NA\\
-12 & 38.1802 & 216.58.202.4 ms & gru06s26-in-f4.1e100.net & US, NA\\ \bottomrule
+9 & 10.9052 ms & 209.85.251.86 & 209.85.251.86 & US, NA\\
+10 & 40.759 ms & 209.85.252.42 & 209.85.252.42 & US, NA\\
+11 & 38.5816 ms & 216.239.58.221 & 216.239.58.221 & US, NA\\
+12 & 38.1802 ms & 216.58.202.4 & gru06s26-in-f4.1e100.net & US, NA\\ \bottomrule
 \end{tabular}
-\caption{traceroute: google.com sin caching}
 \label{google}
 \end{table}
 
 
 \begin{table}[H]
+\caption{traceroute: google.com con caching}
 \centering
 \begin{tabular}{@{}lllll@{}}
 \toprule
 Hop & Avg. RTT & IP Address & Host name & Location\\ \midrule
-1 & 11.1854 & 181.169.12.1 ms & 1-12-169-181.fibertel.com.ar & AR, SA\\
+1 & 11.1854 ms & 181.169.12.1 & 1-12-169-181.fibertel.com.ar & AR, SA\\
 2 &  * * * * * &  &  &  \\
 3 &  * * * * * &  &  &  \\
 4 &  * * * * * &  &  &  \\
-5 & 21.9184 & 200.89.165.33 ms & 33-165-89-200.fibertel.com.ar & AR, SA\\
-6 & 15.066 & 200.89.164.26 ms & 26-164-89-200.fibertel.com.ar & AR, SA\\
+5 & 21.9184 ms & 200.89.165.33 & 33-165-89-200.fibertel.com.ar & AR, SA\\
+6 & 15.066 ms & 200.89.164.26 & 26-164-89-200.fibertel.com.ar & AR, SA\\
 7 &  * * * * * &  &  &  \\
-8 & 11.6574 & 181.30.241.187 ms & 187-241-30-181.fibertel.com.ar & AR, SA\\ \bottomrule
+8 & 11.6574 ms & 181.30.241.187 & 187-241-30-181.fibertel.com.ar & AR, SA\\ \bottomrule
 \end{tabular}
-\caption{traceroute: google.com con caching}
 \label{googlecache}
 \end{table}
 
