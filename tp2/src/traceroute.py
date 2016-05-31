@@ -13,6 +13,7 @@ import math
 from sets import Set
 import networkx as nx
 from geoip import geolite2
+from mpl_toolkits.basemap import Basemap
 
 # Dependencies
 # pyx, networkx
