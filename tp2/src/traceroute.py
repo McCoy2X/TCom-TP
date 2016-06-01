@@ -13,18 +13,14 @@ import math
 from sets import Set
 import networkx as nx
 from geoip import geolite2
+import pycountry
 
+HOP_LIMIT = 30
+REPEAT_REQ = 5
+DEGREE = 2 # polinomial degree used to detect transatlantic cables
 
-# Dependencies
-# pyx, networkx
-# pip install python-geoip
-# sudo pip install python-geoip-geolite2
-# sudo apt-get install python-mpltoolkits.basemap
-
-# http://www.secdev.org/projects/scapy/doc/usage.html
+# Scapy: http://www.secdev.org/projects/scapy/doc/usage.html
 # ICMP: http://www.ietf.org/rfc/rfc792.txt
-# ttl: time to live (hop limit)
-# https://en.wikipedia.org/wiki/Time_to_live
 
 def myTraceRoute(url):
 	
@@ -36,28 +32,23 @@ def myTraceRoute(url):
 
 	print "traceroute to %s (%s), 20 hops max" % (url, host)
 
-	data  = dict()
+	data  = list()
 	edges = Set()
-	exportTable = list()
-	# latitude = list() # wanted to plot all coords on a 'hackish' looking map, failed to import lib :(
-	# longitude = list()
 
-	hops = 1
 	ttl = 1;
 	resp_type = -1
-	repeat = 5
 
 	addr_from = '192.168.0.9'
 	addr_to   = ''
 
-	while resp_type != 0 and hops <= 40:
+	while resp_type != 0 and ttl <= HOP_LIMIT:
 
-		d = dict()
+		d = dict() # key as ip to group same ip RTTs
 		failed = 0
 		
-		pck = IP(dst=url, ttl=ttl) / ICMP() # 28 bytes
+		pck = IP(dst=url, ttl=ttl) / ICMP()
 
-		for _ in range(0,repeat):
+		for _ in range(0, REPEAT_REQ):
 
 			ans, unans = sr(pck, timeout=1, verbose=0)
 
@@ -70,23 +61,21 @@ def myTraceRoute(url):
 				i = 0
 
 				# the request my computer sends to the url
-				# req_src  = ans[ICMP][i][0].src
-				# req_dst  = ans[ICMP][i][0].dst
-				# req_type = ans[ICMP][i][0].type
-
-				# ans[ICMP][i][1].show()
+				# req_src  = ans[i][0].src
+				# req_dst  = ans[i][0].dst
+				# req_type = ans[i][0].type
 
 				# response from a hop, can be successful or unsuccessful
-				resp_src  = ans[ICMP][i][1].src
-				resp_dst  = ans[ICMP][i][1].dst
-				resp_type = ans[ICMP][i][1].type 
+				resp_src  = ans[i][1].src
+				resp_dst  = ans[i][1].dst
+				resp_type = ans[i][1].type 
 
 				# if resp_type != 0:
 
 				# 	# when the hop decrements the ttl and ttl = 0, this is the packet the hop receibed.
-				# 	hop_src   = ans[ICMP][i][1][1].src
-				# 	hop_dst   = ans[ICMP][i][1][1].dst
-				# 	hop_type  = ans[ICMP][i][1][1].type
+				# 	hop_src   = ans[i][1][1].src
+				# 	hop_dst   = ans[i][1][1].dst
+				# 	hop_type  = ans[i][1][1].type
 
 				# group times from same host
 				if resp_src in d:
@@ -98,128 +87,74 @@ def myTraceRoute(url):
 				edges.add((addr_from, addr_to))
 				addr_from = addr_to
 
-				# ans[ICMP][0][1].show()
-
 			else:
 
 				failed += 1
 
-		# print output
+		# print trace
 		print '%s' % ttl,
 		print ' *'*failed,
 
 		if failed > 0:
-			exportTable.append((ttl, ' *'*failed, "-", "-"))
+			data.append((ttl, ' *'*failed, 0))
 
 		for key in d:
 
-			try:
-				host = socket.gethostbyaddr(key)[0]
-			except:
-				host = key
+			host, country, continent = getHostData(key)
 
 			print ' %s (%s)' % (host, resp_src),
 			
 			for elem in d[key]:
 				print " %.3f ms" % elem,
 
-			match = geolite2.lookup(key)
+			if country is not None:
+				print " (%s, %s)" % (country, continent),
 
-			# latitude.append(match.location[0])
-			# longitude.append(match.location[1])
-
-			if match is not None:
-				print " (%s, %s)" % (match.country, match.continent),
-
-			# save data for intercontinental detection
-			data[key] = (ttl, np.mean(d[key]))
-
-			exportTable.append((ttl, host, np.mean(d[key]), key))
-
+			# save data
+			data.append((ttl, key, d[key]))
 
 		print ''
 
-		hops += 1
 		ttl += 1
 		failed = 0
 
-	# printGraph(edges)
-
-	print "Hop & Avg. RTT & IP Address & Host name & Location\\\\ \\midrule"
-	for row in exportTable:
-		if row[3] == "-":
-			print "%s & %s &  &  &  \\\\" % (row[0], row[1])
-		else:
-			match = geolite2.lookup(row[3])
-
-			if match is not None:
-				country = match.country
-				continent = match.continent
-			else:
-				country = ""
-				continent = ""
-
-			print "%s & %s ms & %s & %s & %s, %s\\\\" % (row[0], row[2], row[3], row[1], country, continent)
-
-	# print ans[ICMP].pdfdump('packets.pdf',layer_shift=1)
+	# print ans.pdfdump('packets.pdf', layer_shift=1)
 	return data
 
+def getHostData(ip):
 
-def printGraph(edges):
+	# get hostname
+	try:
+		host = socket.gethostbyaddr(ip)[0]
+	except:
+		host = ip
 
-	i = 0
-	ids = dict()
+	# get country data
+	match = geolite2.lookup(ip)
 
-	for e in edges:
-		if e[0] not in ids:
-			ids[e[0]] = i
-			i += 1
-		if e[1] not in ids:
-			ids[e[1]] = i
-			i += 1
+	if match is not None:
+		country = match.country
+		continent = match.continent
+	else:
+		country = None
+		continent = None
 
+	return (host, country, continent)
 
-	G = nx.Graph()
+def printLatexTable(data):
 
-	# for j in range(0, i+1)
-	# 	G.add_node(j)
+	print "Hop & Avg. RTT & IP Address & Host name & Location\\\\ \\midrule"
 
-	labels = {}
-	for e in edges:
-		edge_from = ids[e[0]]
-		edge_to   = ids[e[1]]
-		
-		# labels
-		try:
-			host_from = socket.gethostbyaddr(e[0])[0]
-		except:
-			host_from = e[0]
+	for ttl, ip, rtts in data:
+		if rtts == 0:
+			print "%s & %s &  &  &  \\\\" % (ttl, ip)
+		else:
 
-		try:
-			host_to = socket.gethostbyaddr(e[1])[0]
-		except:
-			host_to = e[1]
+			host, country, continent = getHostData(ip)
 
-		if e[0] == '192.168.0.9':
-			host_from = 'origin'
-
-		labels[edge_from] = host_from
-		labels[edge_to]   = host_to
-
-		G.add_node(edge_from)
-		G.add_node(edge_to)
-		G.add_edge(edge_from, edge_to)
-
-
-	pos = nx.spring_layout(G) # positions for all nodes
-	nx.draw(G, pos)
-	nx.draw_networkx_labels(G, pos, labels, font_size=16)
-
-	plt.show()
+			print "%s & %s ms & %s & %s & %s, %s\\\\" % (ttl, np.mean(rtts), ip, host, country, continent)
 
 def detectIntercontinentalHops(data):
-
-	degree = 2
 
 	findOutlier = True
 
@@ -227,41 +162,40 @@ def detectIntercontinentalHops(data):
 
 		x = list()
 		y = list()
-		t = list()
 
-		for key in data:
-			ttl = data[key][0]
-			t.append(ttl)
+		for ttl, ip, rtts in data:
+
+			if rtts == 0: # * * * *
+				continue
 
 			x.append(ttl)
-			y.append(data[key][1]) # list of averages
-
-			# for elem in data[key][1]:
-			# 	x.append(ttl);
-			# 	y.append(elem);
+			y.append(np.mean(rtts)) # list of averages
 
 		x = np.array(x)
 		y = np.array(y)
-		coefs = np.polyfit(x, y, degree)
+
+		coefs = np.polyfit(x, y, DEGREE)
 		p = np.poly1d(coefs)
 
-		df = len(x) - (degree + 1)
+		df = len(x) - (DEGREE + 1)
 		residuals = y - np.polyval(coefs, x)
 
 		se = math.sqrt(np.sum(np.square(residuals)) / df)
 		std_residuals = residuals / se
 
-		# xp = np.linspace(1, max(t), 100)
-		# plt.figure(1)
-		# plt.subplot(211)
-		# plt.plot(x, y, '.', xp, p(xp), '-')
-		# plt.xlabel('Hops')
-		# plt.ylabel('Time (ms)')
+		xp = np.linspace(1, max(x), 100)
+		plt.figure(1)
+		plt.subplot(211)
+		plt.plot(x, y, '.', xp, p(xp), '-')
+		plt.ylim(ymin=0)
+		plt.xlabel('Hops')
+		plt.ylabel('Time (ms)')
 
-		# plt.subplot(212)
-		# plt.plot(x, std_residuals, '.')
-		# plt.xlabel('Hops')
-		# plt.ylabel('Standarized Residual')
+		plt.subplot(212)
+		plt.plot(x, std_residuals, '.')
+		plt.axhline(y=0, xmin=0, xmax=max(x), hold=None)
+		plt.xlabel('Hops')
+		plt.ylabel('Standarized Residual')
 
 		plt.show()
 
@@ -269,17 +203,52 @@ def detectIntercontinentalHops(data):
 		outlier = max(std_residuals)
 		time    = y[np.where(std_residuals == outlier)]
 
-		if outlier > 1.7: # passes first test
+		print x
+		print y
+		print "Standarized residuals:"
+		print std_residuals
 
-			for key in data:
-				if time == data[key][1]:
-					print "Hop %s (%s) is intercontinental." % (data[key][0], key)
-					del data[key]
+		if outlier > 2: # passes first test
+
+			for row in data:
+				ttl, ip, rtts = row
+				if time == np.mean(rtts):
+					print "Hop %s (%s) is intercontinental." % (ttl, ip)
+					data.remove(row)
 					break
 
 		else:
 
 			findOutlier = False
+
+def stackedBoxPlot(data, name):
+
+	hosts = list()
+	rtt  = list()
+	error = list()
+
+	for ttl, ip, rtts in reversed(data):
+
+		if rtts == 0:
+			continue
+
+		host, country, continent = getHostData(ip)
+
+		country = pycountry.countries.get(alpha2=country)
+
+		hosts.append(ip + "\n" + country.name);
+		rtt.append(np.mean(rtts))
+		error.append(2*np.std(rtts))
+
+	y_pos = np.arange(len(hosts)) + 1
+
+	plt.barh(y_pos, rtt, xerr=error, align='center', height=0.8, alpha=0.4)
+	plt.yticks(y_pos, hosts, horizontalalignment='right', fontsize=9)
+	plt.xlabel('RTT (ms)')
+	plt.ylim(ymin=0)
+	plt.ylabel('Host')
+	plt.savefig('../docs/images/'+url+'.png', bbox_inches='tight')
+	plt.show()
 
 if __name__ == "__main__":
 
@@ -289,6 +258,6 @@ if __name__ == "__main__":
 		url = 'www.google.com'
 
 	data = myTraceRoute(url)
+	stackedBoxPlot(data, url)
 	detectIntercontinentalHops(data)
-
-	# network topology!
+	printLatexTable(data)

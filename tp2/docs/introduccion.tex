@@ -12,6 +12,8 @@ En el presente trabajo utilizaremos el protocolo ICMP (Internet Control Message 
 
 La herramienta traceroute, desarrollada inicialmente por Van Jacobson en 1988, es una herramienta sumamente útil de diagnostico de red para buscar una aproximación de la traza de conexión y encontrar el RTT a cada hop (o salto) en la traza. Como ya hemos mencionado, esta herramienta utiliza el protocolo ICMP. A continuación discutiremos la estructura de los paquetes IP/ICMP para luego explicar como se hace efectivamente para identificar los diferentes hops. Luego discutiremos que potenciales problemas puede tener esta herramienta.
 
+\subsection{Header IP}
+
 Como ya hemos mencionado, el protocolo ICMP esta implementado sobre IP. A continuación mostramos la estructura del header de un paquete IPv4. Todo lo que mencionaremos sigue siendo valido para IPv6.
 
 \begin{figure}[H]
@@ -27,11 +29,13 @@ Como ya hemos mencionado, el protocolo ICMP esta implementado sobre IP. A contin
       \bitbox{32}{\emph{Options (if IHL $>$ 5)}} \\
     \end{bytefield}
   \end{center}
-  \caption{Paquete IPv4}
+  \caption{Header IPv4}
   \label{fig:ipv4-packet}
 \end{figure}
 
 Como podemos observador, el header de un paquete IPv4 tiene 24 bytes. En este momento, el campo que mas nos interesa es Time To Live (TTL). Como lo dice su nombre, este campo fue pensado para imponer un limite de tiempo a la vida del paquete en la red. Si no llegaba el paquete antes de ese tiempo, el mismo era descartado por el correspondiente hop. Sin embargo, en la practica esto se implemento como un limite a la cantidad de hops que un paquete podía recorrer. Esto se ve en los headers de los paquetes IPv6, donde el campo fue renombrado como Hop Limit.
+
+\subsection{Header ICMP}
 
 En los paquetes IP/ICMP, al header de IP se le suma el header de ICMP. El mismo tiene la siguiente estructura:
 
@@ -45,7 +49,7 @@ En los paquetes IP/ICMP, al header de IP se le suma el header de ICMP. El mismo 
       \bitbox{32}{\emph{Datos}}
     \end{bytefield}
   \end{center}
-  \caption{Paquete ICMP}
+  \caption{Header ICMP}
   \label{fig:icmp-header}
 \end{figure}
 
@@ -54,27 +58,27 @@ El protocolo ICMP es parte del Internet Protocol Suite, especificado en RFC 792.
 En nuestro caso, los siguientes casos de type seran los mas relevantes:
 
 \begin{itemize}
-	\item 0 – Echo Reply
-	\item 3 - Destination Unreachable
-	\item 8 – Echo Request
-	\item 11 – Time Exceeded
+	\item Type 0 – Echo Reply
+	\item Type 3 - Destination Unreachable
+	\item Type 8 – Echo Request
+	\item Type 11 – Time Exceeded
 \end{itemize}
 
 En principio, implementaremos nuestra propia herramienta traceroute utilizando paquetes ICMP. Para ello, enviaremos un Echo Request al URL (Uniform Resource Locator) al que queremos acceder y encontrar la traza utilizando el campo TTL del header IP.
 
-Si el paquete llega al destino, el servidor nos enviara un paquete ICMP con el type Echo Reply. Para poder encontrar los diferentes hops en la traza, utilizaremos el parámetro Time To Live del header IP, inicializándolo en 1 y luego aumentándolo hasta que nos respondan con un Echo Reply. Es decir, si la red hasta el destino tiene 10 hops y queremos identificar el hop $i$, tendremos que settear el parametro $TTL = i$.
+Si el paquete llega al destino, el servidor nos enviara un paquete ICMP con el type Echo Reply. Para poder encontrar los diferentes hops en la traza, utilizaremos el parámetro Time To Live del header IP, inicializándolo en 1 y luego aumentándolo hasta que nos respondan con un Echo Reply. Es decir, si estamos interesados en identificar el hop $i$ de la traza, tendremos que settear el parametro $TTL = i$ y luego enviar el request.
 
-Cuando un paquete llega a destino, el servidor nos envia otro paquete con. Sin embargo, cuando falla blah.
-
-%Sacar formato de aca: https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol#Control_messages
+Cuando TTL llega a 0, si el hop implementa ICMP, el mismo nos devolverá un reply de tipo Time Exceeded, incluyendo en la sección de datos del paquete ICMP el header IP y los primeros 8 bytes de del datagrama de datos original que enviamos. Si el hop se encuentra bajo algún tipo de congestión, es posible que el mismo descarte nuestro paquete para priorizar los de protocolos como TCP o UDP. Esto por supuesto depende de la implementación del dispositivo de red correspondiente.
 
 Notar que no necesariamente el servidor estara disponible o aceptara paquetes ICMP, por lo que tendremos que poner un limite a la cantidad de hops que buscaremos. Caso contrario iteraríamos hasta llegar al limite dado por los 8 bytes del campo TTL, lo cual no tiene sentido practico. Este procedimiento se puede ver un poco mejor en la siguiente imagen:
 
 \includegraphics[width=\textwidth,keepaspectratio]{images/traceroute_typical}
 
-Para implementar esta herramienta utilizaremos Python, con la libreria scapy. Esta librería nos permite formar paquetes ICMP y luego hacer los respectivos requests.
+Para implementar esta herramienta utilizaremos Python, con la libreria Scapy. Esta librería nos permite formar paquetes ICMP y luego hacer los respectivos requests.
 
-Notar que el request lo mandaremos a un URL, por lo que el mismo se debe resolver a un IP mediante un request a un DNS (Domain Name System). Correr dos veces la herramienta no nos garantizara que hagamos el request a un mismo IP, dado que un sitio puede tener varios IPs asignados. Esto pasa normalmente con google.com. A su vez, en el ejemplo ilustrativo consideramos una topologia de red sumamente simple. Dado que las topologias tienden a ser sumamente complejas, esto lleva a que al hacer el traceroute se puedan presentar una serie de problemas que deben ser tenidos en cuenta.
+\subsection{Resolución DNS}
+
+Al hacer un request, en general nos abstraemos de la direccion IP y lo hacemos a un URL. Este URL se debe resolver a una dirección IP mediante un request a un DNS (Domain Name System) con el formato especificado en el RFC 1035 \footnote{RFC 1035: \url{https://www.ietf.org/rfc/rfc1035.txt}}. Por lo tanto, correr dos veces la herramienta no nos garantizara que hagamos el request a un mismo IP, dado que un sitio puede tener varios IPs asignados. Esto pasa normalmente con google.com. A su vez, en el ejemplo ilustrativo consideramos una topología de red sumamente simple. Dado que las topologías tienden a ser sumamente complejas, esto lleva a que al hacer el traceroute se puedan presentar una serie de problemas que deben ser tenidos en cuenta.
 
 \subsection{Anomalidades en traceroutes}
 
@@ -88,3 +92,5 @@ A continuación veremos las potenciales problemáticas de hacer un traceroute ut
 	\item Loops and Circles
 	\item Diamonds
 \end{enumerate}
+
+Estos tipos están explicados en detalle en el paper de Jobst \cite{jobst2012traceroute}.
