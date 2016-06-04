@@ -4,6 +4,7 @@ import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 import time
+import sys
 from subprocess import *
 from pyx import *
 from datetime import datetime
@@ -11,9 +12,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from sets import Set
-import networkx as nx
 from geoip import geolite2
 import pycountry
+from scipy import stats
 
 HOP_LIMIT = 30
 REPEAT_REQ = 5
@@ -28,7 +29,7 @@ def myTraceRoute(url):
 		host = socket.gethostbyname(url)
 	except:
 		print "%s: Name or service not known" % url
-		return
+		sys.exit()
 
 	print "traceroute to %s (%s), 20 hops max" % (url, host)
 
@@ -127,6 +128,7 @@ def getHostData(ip):
 	try:
 		host = socket.gethostbyaddr(ip)[0]
 	except:
+		# host = ""
 		host = ip
 
 	# get country data
@@ -135,6 +137,7 @@ def getHostData(ip):
 	if match is not None:
 		country = match.country
 		continent = match.continent
+		country = pycountry.countries.get(alpha2=country).name
 	else:
 		country = None
 		continent = None
@@ -152,74 +155,75 @@ def printLatexTable(data):
 
 			host, country, continent = getHostData(ip)
 
-			print "%s & %s ms & %s & %s & %s, %s\\\\" % (ttl, np.mean(rtts), ip, host, country, continent)
+			print "%s & %s ms & %s & %s & %s\\\\" % (ttl, np.mean(rtts), ip, host, country)
 
 def detectIntercontinentalHops(data):
 
+	data = [row for row in data if row[2] != 0] # remove *s
+
 	findOutlier = True
+
+	edges = list()
+
+	for i in range(0, len(data)-1):
+
+		from_ttl, from_ip, from_rtts = data[i]
+		to_ttl, to_ip, to_rtts       = data[i+1]
+
+		elapsedTime = np.mean(to_rtts) - np.mean(from_rtts)
+
+		if elapsedTime <= 0: continue
+
+		edges.append((from_ttl, to_ttl, elapsedTime, from_ip, to_ip))
+
+	selectedEdges = list()
 
 	while findOutlier:
 
 		x = list()
-		y = list()
 
-		for ttl, ip, rtts in data:
+		for edge in edges:
+			x.append(edge[2])
 
-			if rtts == 0: # * * * *
-				continue
+		mean = np.mean(x)
+		S    = np.std(x)
 
-			x.append(ttl)
-			y.append(np.mean(rtts)) # list of averages
+		abs_dev = map(abs, x-mean)
 
-		x = np.array(x)
-		y = np.array(y)
+		outlier_candidate = max(abs_dev)
 
-		coefs = np.polyfit(x, y, DEGREE)
-		p = np.poly1d(coefs)
+		index = abs_dev.index(outlier_candidate)
+		time  = x[index]
 
-		df = len(x) - (DEGREE + 1)
-		residuals = y - np.polyval(coefs, x)
+		# print "candidate: %s, mean: %s, std: %s, index: %s, time: %s" % (outlier_candidate, mean, std, index, time)
 
-		se = math.sqrt(np.sum(np.square(residuals)) / df)
-		std_residuals = residuals / se
+		n = len(x)
+		alpha = 0.05
+		t_critical = stats.t.ppf(1-alpha/2, n-2)
 
-		xp = np.linspace(1, max(x), 100)
-		plt.figure(1)
-		plt.subplot(211)
-		plt.plot(x, y, '.', xp, p(xp), '-')
-		plt.ylim(ymin=0)
-		plt.xlabel('Hops')
-		plt.ylabel('Time (ms)')
+		tao = t_critical * (n-1) / (math.sqrt(n) * math.sqrt(n-2+t_critical**2))
 
-		plt.subplot(212)
-		plt.plot(x, std_residuals, '.')
-		plt.axhline(y=0, xmin=0, xmax=max(x), hold=None)
-		plt.xlabel('Hops')
-		plt.ylabel('Standarized Residual')
+		# print "n: %s" % n
+		# print "mean: %s, std: %s" % (mean, S)
+		# print "sample: %s" % x
+		# print "abs_dev: %s" % abs_dev
+		# print "tao: %s" % tao
+		# print "outlier_candidate: %s, tao * S: %s" % (outlier_candidate, tao*S)
 
-		plt.show()
+		if outlier_candidate > tao * S:
 
-		std_residuals = np.absolute(std_residuals);
-		outlier = max(std_residuals)
-		time    = y[np.where(std_residuals == outlier)]
-
-		print x
-		print y
-		print "Standarized residuals:"
-		print std_residuals
-
-		if outlier > 2: # passes first test
-
-			for row in data:
-				ttl, ip, rtts = row
-				if time == np.mean(rtts):
-					print "Hop %s (%s) is intercontinental." % (ttl, ip)
-					data.remove(row)
+			for edge in edges:
+				from_ttl, to_ttl, elapsedTime, from_ip, to_ip = edge
+				if time == elapsedTime:
+					selectedEdges.append(edge)
+					edges.remove(edge)
+					if elapsedTime > 10:
+						print "Edge (%s, %s) is intercontinental (%s ms)" % (from_ttl, to_ttl, elapsedTime)
 					break
-
 		else:
-
 			findOutlier = False
+
+	return selectedEdges
 
 def stackedBoxPlot(data, name):
 
@@ -234,9 +238,7 @@ def stackedBoxPlot(data, name):
 
 		host, country, continent = getHostData(ip)
 
-		country = pycountry.countries.get(alpha2=country)
-
-		hosts.append(ip + "\n" + country.name);
+		hosts.append(ip + "\n" + country);
 		rtt.append(np.mean(rtts))
 		error.append(2*np.std(rtts))
 
@@ -250,6 +252,48 @@ def stackedBoxPlot(data, name):
 	plt.savefig('../docs/images/'+url+'.png', bbox_inches='tight')
 	plt.show()
 
+def edgesTable(data, selectedEdges):
+
+	data = [row for row in data if row[2] != 0] # remove *s
+
+	edges = list()
+
+	for i in range(0, len(data)-1):
+
+		from_ttl, from_ip, from_rtts = data[i]
+		to_ttl, to_ip, to_rtts       = data[i+1]
+
+		elapsedTime = np.mean(to_rtts) - np.mean(from_rtts)
+
+		edges.append((from_ttl, to_ttl, elapsedTime, from_ip, to_ip))
+
+	print "Id & From & To & Avg. RTT & Simbala & GeoIP\\\\ \\midrule"
+
+	row_id = 1
+
+	for edge in edges:
+
+		from_ttl, to_ttl, elapsedTime, from_ip, to_ip = edge
+		from_host, from_country, from_continent = getHostData(from_ip)
+		to_host, to_country, to_continent = getHostData(to_ip)
+
+		if elapsedTime < 0:
+			elapsedTime = "-"
+
+		if from_host != "":
+			temp = from_host.split(".")
+			from_host = temp[-3] + "." + temp[-2] + "." + temp[-1]
+
+		if to_host != "":
+			temp = to_host.split(".")
+			to_host = temp[-3] + "." + temp[-2] + "." + temp[-1]
+
+		simbala = 'yes' if edge in selectedEdges else 'no'
+		geoCheck = 'yes' if from_continent != to_continent else 'no'
+
+		print "%s & \\parbox[t][1.3cm]{5cm}{%s \\\\ %s, %s \\\\ %s} & \\parbox[t][1.3cm]{5cm}{%s \\\\ %s, %s \\\\ %s} & %s ms & %s & %s\\\\ \\bottomrule" % (row_id, from_ip, from_country, from_continent, from_host, to_ip, to_country, to_continent, to_host, elapsedTime, simbala, geoCheck)
+		row_id += 1
+
 if __name__ == "__main__":
 
 	if len(sys.argv) > 1:
@@ -259,5 +303,7 @@ if __name__ == "__main__":
 
 	data = myTraceRoute(url)
 	stackedBoxPlot(data, url)
-	detectIntercontinentalHops(data)
-	printLatexTable(data)
+	selectedEdges = detectIntercontinentalHops(data)
+	# edgesTable(data, selectedEdges)
+	# print '*'*10
+	# printLatexTable(data)
