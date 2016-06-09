@@ -1,9 +1,20 @@
 \section{Conclusión}
 
-Discutir alternativas, onda hacer esto por IP (IPv6 tiene la opcion de hacer un traceroute, esta en los slides de clase del tp!). Hablar de como cambia la cantidad de paquetes que deben ser enviados. Fijarse si existen otros metodos!
+Poder trazar la ruta que un paquete potencialmente puede tomar es sumamente importante, particularmente para podes identificar saltos donde la red se puede congestionar o tener errores. Esta funcionalidad es ampliamente utilizada a día de hoy, si bien en este trabajo practico vimos un método para la implementación de esta herramienta, existen otras maneras de implementarla.
 
-Comentar sobre la ruta a Japon, que es la que mas sorprende.
+El método propuesto en el TP consiste en abusarse de los paquetes ICMP para poder obtener la ruta del origen al destino, el problema de esto es que es posible que la ruta cambie durante la ejecución obteniendo así una ruta invalida (es una posibilidad minima que puede ser mitigada fácilmente ejecutando varias veces el algoritmo), en varias ocasiones se contemplo incluir la traza de rutas en los protocolos y paquetes, un método fue propuesto en el RFC 791 (\textit{record route}) y el RFC 1393 (\textit{traceroute con IP Option}). El primer método consiste en guardar las direcciones de 32 bits en el header del paquete a medida que transita la red, mientras que el segundo consiste en que los enrutadores sepan que se esta haciendo un traceroute y envíen paquetes identificándose como saltos al origen, el método con \textit{record route} existe aun a día de hoy pero esta limitado a guardar a lo sumo 9 saltos por limitaciones de espacio en el header (creemos que esto se debe a que fue planteado en 1981, antes de la Internet moderna), mientras que el \textit{traceroute con IP Option} requería que todos los enrutadores soporten la opción IP apropiada, así que como era de esperar nunca fue implementado y fue deprecado en 2012 por el RFC 6814.
 
-Discutir pros and cons de Simbala vs GeoIP. Como se podria mejorar y complementar.
+%Desde un marco "`legal"', tenemos la opcion de \textit{record route} y 
+%Discutir alternativas, onda hacer esto por IP (IPv6 tiene la opcion de hacer un traceroute, esta en los slides de clase del tp!). Hablar de como cambia la cantidad de paquetes que deben ser enviados. Fijarse si existen otros metodos!
 
-Charlar sobre el uso de embebidos para network topology (discutir challenges de topology). Meter un par de imagenes copadas del paper? cerrar con ideas, estadisticas e imagenes de aca? http://internetcensus2012.bitbucket.org/paper.html
+Respecto a los resultados obtenidos con nuestra herramienta, casi todos se correspondieron con lo que esperábamos. Sin embargo, el de Japón fue el mas interesante, mirando el mapa de enlaces intercontinentales podemos ver que la manera mas directa hacia el destino es a través del océano pacifico, empleando los enlaces que hay sobre la costa oeste de Estados Unidos. Para poder llegar a dichos enlaces hay varias formas, si bien se tomo un camino por Europa, también es posible tomar varios caminos desde Argentina hacia la costa este de Estados Unidos, y luego recorrer hacia la costa oeste de dicho país. Lo mas importante a destacar es que esto deja en claro que la distribución de fibra óptica a lo largo del mundo esta pensada en base al trafico mas que en minimizar la latencia a nivel mundial, pero al igual que dijimos durante el análisis, esto tiene sentido considerando lo reducido que debe ser el trafico de Argentina hacia Japón.
+
+%Comentar sobre la ruta a Japon, que es la que mas sorprende.
+
+De los dos métodos discutidos, ambos tuvieron sus falencias. Esta claro que el método infalible seria un base de datos como la de GeoIP que este constantemente actualizada, eso permitiría erradicar toda ambigüedad, sin embargo, la naturaleza dinámica y la diversidad burocrática de la Internet hace que sea imposible tener dicha información actualizada, lo cual llevo a los errores vistos. El método de Simbala, por otro lado, es susceptible a la congestión de la red ya que se basa en outliers y en mediciones de tiempo, esto también lo hace sumamente débil ya que si el servidos no responde a los paquetes de \textit{Time Exceeded} el método no se puede aplicar sobre ese salto, sin embargo, cuando la información estaba disponible los resultados fueron aceptables. En la practica, lo prudente seria aplicar varios criterios distintos para evaluar si en un salto hubo un enlace intercontinental, y luego tomar una decisión según la fiabilidad de cada unos de los criterios en cuestión.
+
+
+ 
+%Discutir pros and cons de Simbala vs GeoIP. Como se podria mejorar y complementar.
+
+%Charlar sobre el uso de embebidos para network topology (discutir challenges de topology). Meter un par de imagenes copadas del paper? cerrar con ideas, estadisticas e imagenes de aca? http://internetcensus2012.bitbucket.org/paper.html
