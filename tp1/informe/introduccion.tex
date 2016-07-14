@@ -29,7 +29,7 @@ Los mismos se encuentran conectados de la siguiente forma:
 Para poder establecer una comunicacion punto a punto, es necesario que el emisor y el receptor "`hablen"' un lenguaje en comun. Para poder satisfacer esto, se define un conjunto de simbolos $S = \{ s_1, ..., s_n \}$, con una probabilidad $p(s_i)$ con $1 \leq i \leq n$ asociada a cada uno de ellos, este conjunto representa la totalidad de simbolos que pueden ser transmitidos por el canal. Una vez definido el conjunto, la informacion que se obtiene por simbolo es simplemente $I(s_i) = log(\frac{1}{p(s_i)})$. Se elige el logaritmo como funcion por cumplir con varias condiciones idóneas para calcular la informacion, de las mas interesantes tenemos que:
 
 \begin{itemize}
-	\item Si $s \in S$, entonces $I(s) \geq 0$
+	\item Si $s \in S$, entonces $I(s) \geq 0$. Esto vale ya que la inversa de la probabilidad es siempre mayor o igual a 1
 	\item Si $p(s_i) = 1$ para algun $i$, entonces $I(s_i) = 0$, ya que un evento que ocurre siempre no aporta información significativa
 	\item $I(s_i, s_j) \leq I(s_i) + I(s_j)$, la igualdad vale unicamente si los simbolos son independientes
 \end{itemize}
@@ -182,7 +182,7 @@ Como vimos en el desarrollo, definimos los símbolos de $S_1$ como las direccion
 
 Una de las suposiciones que teníamos, era que por el funcionamiento de la red Wi-Fi, la gran mayoría de los paquetes irían dirigidos hacia un nodo principal, el cual después se encargaría de redirigirlos al destino apropiado. Como podemos ver, esto ocurrió en ambos casos, hay un nodo el cual tiene muchas mas apariciones que el resto.
 
-A pesar de que los resultados satisfacían nuestras teorías, nos sorprendió que el margen de diferencia entre el nodo principal y el resto no sea mayor, con lo cual los otros nodos también están enviando paquetes ARP a nodos que no son el principal. Esto sera estudiado mas adelante, primero vamos a ver la información en ambos canales, nuevamente limitándonos a las diez direcciones que mas aparecieron:
+A pesar de que los resultados satisfacían nuestras expectativas, nos sorprendió que el margen de diferencia entre el nodo principal y el resto no sea mayor, con lo cual los otros nodos también están enviando paquetes ARP a nodos que no son el principal. Esto sera estudiado mas adelante, primero vamos a ver la información en ambos canales, nuevamente limitándonos a las diez direcciones que mas aparecieron:
 
 \begin{figure}[ht]
 \begin{center}
@@ -241,8 +241,7 @@ Las apariciones de estos paquetes consideramos que terminaron quitandole bastant
 
 Es bastante interesante ver como los diferentes conceptos de teoria de la informacion aplican en canales reales, particularmente considerando que fueron planteados en 1948 cuando las redes modernas no existian. Desde el punto de vista de las redes Wi-Fi puntualmente, vimos como la comunicacion es sumamente centralizada y dominada por IPv4, lo primero se puede ver claramente en los paquetes ARP los cuales en nuestras muestras estan en gran parte dirigidos a un unico nodo, mientras que lo segundo no solamente se ve a simple vista, sino que ademas es esperable considerando que la Internet funciona sobre IPv4.
 
-Como estudio a futuro, seria interesante hacer un \textit{sniffeo} durante el lapso de uno o mas dias, para poder ver si las proporciones obtenidas con la fuente $S_1$ se mantienen, o si eventualmente el nodo principal se impone respecto al resto aumentando aun mas la diferencia entre estos.
-
+Como estudio a futuro, seria interesante hacer un \textit{sniffeo} durante el lapso de uno o mas dias, para poder ver si las proporciones obtenidas con la fuente $S_1$ se mantienen, o si eventualmente el nodo principal se impone respecto al resto aumentando aun mas la diferencia entre estos. Tambien consideramos importante analizar las diferentes tecnicas de ARP Spoofing, y analizar cuan factible es realizar dichos ataques y el alcance de los mismos, particularmente hacer spoofing del gateway, en redes Wi-Fi esto es sumamente interesante ya que al ser centralizada podriamos redirigir el trafico y administrar el acceso a la red.
 %\subsection{Proporcion de trafico local e Internet}
 %
 %METER ESTO EN DISTINCION DE NODOS
