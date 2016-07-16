@@ -371,27 +371,27 @@ Direccion IP & Apariciones & Informacion & Apariciones / Total \\ \midrule
 \begin{tabular}{@{}llll@{}}
 \toprule
 Direccion IP & Apariciones & Informacion        & Apariciones / Total \\ \midrule
-10.2.7.249   & 66          & 4.43261892584032   & 0.023               \\
-10.2.3.254   & 68          & 4.402765962690638  & 0.024               \\
-10.2.200.119 & 80          & 4.240247033192863  & 0.028               \\
-10.2.201.165 & 83          & 4.203433060070147  & 0.029               \\
-0.0.0.0      & 96          & 4.057925476398909  & 0.034               \\
-10.2.203.125 & 100         & 4.017103481878653  & 0.030               \\
-10.2.7.4     & 103         & 3.987544679637109  & 0.035               \\
-10.2.7.23    & 106         & 3.9588345737546775 & 0.038               \\
-10.2.0.187   & 106         & 3.9588345737546775 & 0.038               \\
-10.2.7.13    & 107         & 3.9494448334048387 & 0.038               \\
-10.2.1.13    & 121         & 3.826483122270004  & 0.043               \\
-10.2.0.249   & 123         & 3.8100893124943274 & 0.044               \\
-10.2.7.250   & 128         & 3.7702434039471275 & 0.045               \\
-10.2.1.254   & 131         & 3.7470763446655933 & 0.047               \\
-10.2.7.254   & 143         & 3.6594290376068375 & 0.051               \\
-10.0.0.253   & 152         & 3.5983931470204684 & 0.054               \\
-10.0.0.241   & 153         & 3.591835746474309  & 0.054               \\
-10.2.1.230   & 156         & 3.572417660617208  & 0.056               \\
-10.2.200.152 & 222         & 3.2195962859944656 & 0.079               \\
-10.2.201.130 & 500         & 2.407665569444553  & 0.179               \\
-10.2.203.254 & 617         & 2.1974046439613573 & 0.221               \\ \bottomrule
+10.2.7.249   & 66          & 4.432   & 0.023               \\
+10.2.3.254   & 68          & 4.402  & 0.024               \\
+10.2.200.119 & 80          & 4.240  & 0.028               \\
+10.2.201.165 & 83          & 4.203  & 0.029               \\
+0.0.0.0      & 96          & 4.057  & 0.034               \\
+10.2.203.125 & 100         & 4.017  & 0.030               \\
+10.2.7.4     & 103         & 3.987  & 0.035               \\
+10.2.7.23    & 106         & 3.958 & 0.038               \\
+10.2.0.187   & 106         & 3.958 & 0.038               \\
+10.2.7.13    & 107         & 3.949 & 0.038               \\
+10.2.1.13    & 121         & 3.826  & 0.043               \\
+10.2.0.249   & 123         & 3.810 & 0.044               \\
+10.2.7.250   & 128         & 3.770 & 0.045               \\
+10.2.1.254   & 131         & 3.747 & 0.047               \\
+10.2.7.254   & 143         & 3.659 & 0.051               \\
+10.0.0.253   & 152         & 3.598 & 0.054               \\
+10.0.0.241   & 153         & 3.591  & 0.054               \\
+10.2.1.230   & 156         & 3.572  & 0.056               \\
+10.2.200.152 & 222         & 3.219 & 0.079               \\
+10.2.201.130 & 500         & 2.407  & 0.179               \\
+10.2.203.254 & 617         & 2.197 & 0.221               \\ \bottomrule
 \end{tabular}
 \end{table}
 
@@ -431,19 +431,45 @@ En general, la red respondió de la manera que esperábamos, pudimos identificar
 
 Como era de esperar, los resultados en la red hogareña fueron considerablemente mas reducidos que en las redes publicas, con lo cual optamos por graficar la totalidad de las direcciones. Los resultados fueron las siguientes:
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/hogar_s2.pdf}
-\caption{Red hogareña}
-\end{center}
-\end{figure}
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/hogar_s2.pdf}
+%\caption{Red hogareña}
+%\end{center}
+%\end{figure}
+%
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/hogar_inf_s2.pdf}
+%\caption{Red hogareña}
+%\end{center}
+%\end{figure}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/hogar_inf_s2.pdf}
-\caption{Red hogareña}
-\end{center}
-\end{figure}
+\begin{table}[H]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Direccion IP  & Apariciones & Informacion & Apariciones / Total \\ \midrule
+192.168.0.0   & 1           & 8.501       & 0.0001              \\
+192.168.0.108 & 3           & 7.402       & 0.0001              \\
+192.168.0.2   & 5           & 6.892       & 0.001               \\
+192.168.0.71  & 6           & 6.709       & 0.001               \\
+192.168.0.69  & 6           & 6.709       & 0.001               \\
+192.168.0.105 & 6           & 6.709       & 0.001               \\
+192.168.0.7   & 8           & 6.422       & 0.001               \\
+192.168.0.4   & 9           & 6.304       & 0.001               \\
+192.168.0.103 & 11          & 6.103       & 0.002               \\
+192.168.0.101 & 25          & 5.282       & 0.005               \\
+192.168.0.100 & 30          & 5.100       & 0.006               \\
+192.168.0.104 & 41          & 4.787       & 0.008               \\
+192.168.0.112 & 47          & 4.651       & 0.009               \\
+192.168.0.106 & 102         & 3.876       & 0.020               \\
+192.168.0.102 & 2259        & 0.778       & 0.458               \\
+192.168.0.1   & 2363        & 0.733       & 0.480               \\ \bottomrule
+\end{tabular}
+\end{table}
 
 La entropia fue la siguiente:
 
