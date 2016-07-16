@@ -6,7 +6,7 @@ La comunicación es uno de los ejes fundamentales de la humanidad, a lo largo de
 
 \subsection{Informacion y Entropia}
 
-Como vimos en la introduccion, en 1948 el matematico Claude E. Shannon define formalmente que es la \textit{Informacion} en su publicación \textit{A Mathematical Theory of Communication}, junto con esta defincion tambien introduce el concepto de \textit{Entropia} en la comunicación. Primero definimos quienes son los participes en la comunicación:
+Como vimos en la introduccion, en 1948 el matematico Claude E. Shannon define formalmente que es la \textit{Información} en su publicación \textit{A Mathematical Theory of Communication}, junto con esta defincion tambien introduce el concepto de \textit{Entropia} en la comunicación. Primero definimos quienes son los participes en la comunicación:
 
 \begin{itemize}
 	\item Fuente de Informacion
@@ -111,51 +111,90 @@ Por ultimo, es pertinente definir que consideramos como símbolo distinguido. Si
 
 \subsection{Protocolos}
 
-Vamos a ver primero la cantidad de paquetes en las redes:
+Vamos a ver primero la cantidad de paquetes en las redes, y la informacion que los mismos proveyeron como simbolos:
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/plaza_s1.pdf}
-\caption{Red Plaza Oeste}
-\end{center}
-\end{figure}
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/plaza_s1.pdf}
+%\caption{Red Plaza Oeste}
+%\end{center}
+%\end{figure}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/dc_s1.pdf}
-\caption{Red Laboratorios DC}
-\end{center}
-\end{figure}
+\begin{table}[H]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Tipo de paquete & Apariciones & Informacion & Apariciones / Total \\ \midrule
+ARP             & 329         & 3.305       & 0.037               \\
+IPv4            & 8265        & 0.082       & 0.921               \\
+IPv6            & 378         & 3.166       & 0.042               \\ \bottomrule
+\end{tabular}
+\end{table}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/hogar_s1.pdf}
-\caption{Red hogareña}
-\end{center}
-\end{figure}
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/dc_s1.pdf}
+%\caption{Red Laboratorios DC}
+%\end{center}
+%\end{figure}
 
-Como podemos apreciar, los paquetes IPv4 dominan el trafico de la red. A continuación vamos a ver la información por símbolo junto con la entropia:
+\begin{table}[H]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Tipo de paquete & Apariciones & Informacion & Apariciones / Total \\ \midrule
+ARP             & 5566        & 2.006       & 0.134               \\
+IPv4            & 35394       & 0.156       & 0.855               \\
+IPv6            & 424         & 4.580       & 0.011               \\ \bottomrule
+\end{tabular}
+\end{table}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.7\columnwidth]{graficos/plaza_inf_s1.pdf}
-\caption{Red Plaza Oeste}
-\end{center}
-\end{figure}
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/hogar_s1.pdf}
+%\caption{Red hogareña}
+%\end{center}
+%\end{figure}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.7\columnwidth]{graficos/dc_inf_s1.pdf}
-\caption{Red Laboratorios DC}
-\end{center}
-\end{figure}
+\begin{table}[H]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Tipo de paquete & Apariciones & Informacion & Apariciones / Total \\ \midrule
+ARP             & 2507        & 2.536       & 0.079               \\
+IPv4            & 28250       & 0.114       & 0.892               \\
+IPv6            & 912         & 3.547       & 0.029               \\ \bottomrule
+\end{tabular}
+\end{table}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/hogar_inf_s1.pdf}
-\caption{Red hogareña}
-\end{center}
-\end{figure}
+%Como podemos apreciar, los paquetes IPv4 dominan el trafico de la red. A continuación vamos a ver la información por símbolo junto con la entropia:
+%
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.7\columnwidth]{graficos/plaza_inf_s1.pdf}
+%\caption{Red Plaza Oeste}
+%\end{center}
+%\end{figure}
+%
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.7\columnwidth]{graficos/dc_inf_s1.pdf}
+%\caption{Red Laboratorios DC}
+%\end{center}
+%\end{figure}
+%
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/hogar_inf_s1.pdf}
+%\caption{Red hogareña}
+%\end{center}
+%\end{figure}
 
 La entropia en las redes fue:
 
@@ -197,37 +236,83 @@ Como podemos ver, si nos limitamos a las 10 direcciones que mas apariciones tuvi
 
 En este caso los resultados fueron:
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/plaza_top_s2.pdf}
-\caption{Red Plaza Oeste}
-\end{center}
-\end{figure}
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/plaza_top_s2.pdf}
+%\caption{Red Plaza Oeste}
+%\end{center}
+%\end{figure}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/dc_top_s2.pdf}
-\caption{Red Laboratorios DC}
-\end{center}
-\end{figure}
+\begin{table}[H]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Direccion IP  & Apariciones & Informacion & Apariciones / Total \\ \midrule
+10.251.25.214 & 25          & 3.171       & 0.076               \\
+10.251.25.93  & 36          & 2.806       & 0.109               \\
+0.0.0.0       & 51          & 2.458       & 0.155               \\
+10.251.25.1   & 209         & 1.047       & 0.635              
+\end{tabular}
+\end{table}
+
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/dc_top_s2.pdf}
+%\caption{Red Laboratorios DC}
+%\end{center}
+%\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Direccion IP & Apariciones & Informacion        & Apariciones / Total 5566 \\ \midrule
+10.2.7.249   & 123         & 4.500              & 0.022                    \\
+10.2.5.254   & 131         & 4.437              & 0.023                    \\
+10.2.6.254   & 150         & 4.302              & 0.026                    \\
+10.2.7.23    & 156         & 4.263              & 0.028                    \\
+0.0.0.0      & 158         & 4.250              & 0.029                    \\
+10.2.3.254   & 163         & 4.219              & 0.030                    \\
+10.2.7.13    & 175         & 4.148              & 0.031                    \\
+10.2.7.250   & 182         & 4.109              & 0.032                    \\
+10.2.203.125 & 200         & 4.014              & 0.035                    \\
+10.2.7.4     & 206         & 3.985              & 0.037                    \\
+10.2.0.187   & 226         & 3.892              & 0.040                    \\
+10.2.200.231 & 235         & 3.853              & 0.042                    \\
+10.0.0.253   & 246         & 3.807              & 0.044                    \\
+10.2.0.249   & 251         & 3.787              & 0.045                    \\
+10.0.0.241   & 251         & 3.787              & 0.045                    \\
+10.2.1.13    & 257         & 3.764              & 0.046                    \\
+10.2.1.254   & 288         & 3.650              & 0.051                    \\
+10.2.7.254   & 320         & 3.544              & 0.057                    \\
+10.2.1.230   & 336         & 3.495              & 0.060                    \\
+10.2.200.152 & 418         & 3.277              & 0.075                    \\
+10.2.201.130 & 501         & 3.096              & 0.090                    \\
+10.2.203.254 & 1568        & 1.955              & 0.281                    \\ \bottomrule
+\end{tabular}
+\end{table}
 
 Una de las suposiciones que teníamos, era que por el funcionamiento de la red Wi-Fi, la gran mayoría de los paquetes irían dirigidos hacia un nodo principal, el cual después se encargaría de redirigirlos al destino apropiado. Como podemos ver, esto ocurrió en ambos casos, hay un nodo el cual tiene muchas mas apariciones que el resto.
 
 A pesar de que los resultados satisfacían nuestras expectativas, nos sorprendió que el margen de diferencia entre el nodo principal y el resto no sea mayor, con lo cual los otros nodos también están enviando paquetes ARP a nodos que no son el principal. Esto sera estudiado mas adelante, primero vamos a ver la información en ambos canales, nuevamente limitándonos a las diez direcciones que mas aparecieron:
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/plaza_top_inf_s2.pdf}
-\caption{Red Plaza Oeste}
-\end{center}
-\end{figure}
-
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/dc_top_inf_s2.pdf}
-\caption{Red Laboratorios DC}
-\end{center}
-\end{figure}
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/plaza_top_inf_s2.pdf}
+%\caption{Red Plaza Oeste}
+%\end{center}
+%\end{figure}
+%
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/dc_top_inf_s2.pdf}
+%\caption{Red Laboratorios DC}
+%\end{center}
+%\end{figure}
 
 La entropia para estas dos redes fue:
 
@@ -253,33 +338,76 @@ Una cosa interesante a destacar, es que la entropia es mucho mayor tomando como 
 
 Este ultimo punto es particularmente interesante para nosotros, ya que es posible que la muestra tomada no sea significativa del trafico de la red y no sea suficiente para estimar las probabilidades, efectivamente afectando la entropia de la red. También seria interesar estudiar si las políticas de asignación de IP de la red y el uso de la misma terminan amortizando el segundo punto, ya que si el sistema reasigna direcciones siempre que puede, mientras mas grande sea la muestra la diferencia entre el nodo principal y el resto potencialmente seria mayor. Para probar esta teoría, planteamos un experimento simple que consiste en tomar parte de la captura (la mitad de la muestra original), y contrastar los resultados de dicha parte con los totales, con esto podemos estimar si el tiempo puede afectar considerablemente la entropia de la red. Los resultados fueron:
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/plaza_parcial_s2.pdf}
-\caption{Red Plaza Oeste}
-\end{center}
-\end{figure}
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/plaza_parcial_s2.pdf}
+%\caption{Red Plaza Oeste}
+%\end{center}
+%\end{figure}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/dc_parcial_s2.pdf}
-\caption{Red Laboratorios DC}
-\end{center}
-\end{figure}
+\begin{table}[H]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Direccion IP & Apariciones & Informacion & Apariciones / Total \\ \midrule
+10.251.25.93 & 25          & 2.451       & 0.151               \\
+10.251.25.1  & 121         & 0.874       & 0.733               \\ \bottomrule
+\end{tabular}
+\end{table}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/plaza_parcial_inf_s2.pdf}
-\caption{Red Plaza Oeste}
-\end{center}
-\end{figure}
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/dc_parcial_s2.pdf}
+%\caption{Red Laboratorios DC}
+%\end{center}
+%\end{figure}
 
-\begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.8\columnwidth]{graficos/dc_parcial_inf_s2.pdf}
-\caption{Red Laboratorios DC}
-\end{center}
-\end{figure}
+\begin{table}[H]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Direccion IP & Apariciones & Informacion        & Apariciones / Total \\ \midrule
+10.2.7.249   & 66          & 4.43261892584032   & 0.023               \\
+10.2.3.254   & 68          & 4.402765962690638  & 0.024               \\
+10.2.200.119 & 80          & 4.240247033192863  & 0.028               \\
+10.2.201.165 & 83          & 4.203433060070147  & 0.029               \\
+0.0.0.0      & 96          & 4.057925476398909  & 0.034               \\
+10.2.203.125 & 100         & 4.017103481878653  & 0.030               \\
+10.2.7.4     & 103         & 3.987544679637109  & 0.035               \\
+10.2.7.23    & 106         & 3.9588345737546775 & 0.038               \\
+10.2.0.187   & 106         & 3.9588345737546775 & 0.038               \\
+10.2.7.13    & 107         & 3.9494448334048387 & 0.038               \\
+10.2.1.13    & 121         & 3.826483122270004  & 0.043               \\
+10.2.0.249   & 123         & 3.8100893124943274 & 0.044               \\
+10.2.7.250   & 128         & 3.7702434039471275 & 0.045               \\
+10.2.1.254   & 131         & 3.7470763446655933 & 0.047               \\
+10.2.7.254   & 143         & 3.6594290376068375 & 0.051               \\
+10.0.0.253   & 152         & 3.5983931470204684 & 0.054               \\
+10.0.0.241   & 153         & 3.591835746474309  & 0.054               \\
+10.2.1.230   & 156         & 3.572417660617208  & 0.056               \\
+10.2.200.152 & 222         & 3.2195962859944656 & 0.079               \\
+10.2.201.130 & 500         & 2.407665569444553  & 0.179               \\
+10.2.203.254 & 617         & 2.1974046439613573 & 0.221               \\ \bottomrule
+\end{tabular}
+\end{table}
+
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/plaza_parcial_inf_s2.pdf}
+%\caption{Red Plaza Oeste}
+%\end{center}
+%\end{figure}
+
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[width=0.8\columnwidth]{graficos/dc_parcial_inf_s2.pdf}
+%\caption{Red Laboratorios DC}
+%\end{center}
+%\end{figure}
 
 La entropia para estas dos redes fue:
 
