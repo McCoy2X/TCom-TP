@@ -122,7 +122,7 @@ Vamos a ver primero la cantidad de paquetes en las redes, y la informacion que l
 
 \begin{table}[H]
 \centering
-\caption{My caption}
+\caption{Red Plaza Oeste}
 \label{my-label}
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -142,7 +142,7 @@ IPv6            & 378         & 3.166       & 0.042               \\ \bottomrule
 
 \begin{table}[H]
 \centering
-\caption{My caption}
+\caption{Red Laboratorios DC}
 \label{my-label}
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -162,7 +162,7 @@ IPv6            & 424         & 4.580       & 0.011               \\ \bottomrule
 
 \begin{table}[H]
 \centering
-\caption{My caption}
+\caption{Red hogareña}
 \label{my-label}
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -196,6 +196,8 @@ IPv6            & 912         & 3.547       & 0.029               \\ \bottomrule
 %\end{center}
 %\end{figure}
 
+\pagebreak
+
 La entropia en las redes fue:
 
 \begin{table}[H]
@@ -211,7 +213,7 @@ Hogareña & 0.4048   \\  \hline
 \end{tabular}
 \end{table}
 
-Debido a que la cantidad de símbolos es pequeña, decidimos graficar todo el conjunto de símbolos de la fuente $S$.
+Debido a que la cantidad de símbolos es pequeña, decidimos poner en la tabla a todo el conjunto de símbolos de la fuente $S$.
 
 Como podemos ver, la entropia de la red es bastante baja en ambos, esto se debe a la gran cantidad de paquetes IPv4 en ambos canales. Otro punto interesante es que en la red unicamente circulan paquetes de tipo ARP, IPv4 o IPv6, si bien esto es esperable en la red del Plaza Oeste y la red hogareña, nos sorprendió que ocurra también en la red Laboratorios DC, inicialmente creíamos que podía haber algún protocolo en la red que se use de manera casi exclusiva en algún software de índole académica. Sin embargo, el objetivo principal de las redes publicas es proveer de acceso a Internet a los usuarios de la misma, con lo cual el hecho de que solamente se encuentren este tipo de paquetes no es nada fuera de lo normal.
 
@@ -221,7 +223,7 @@ Nuestras predicciones indicaban que la mayoría de los paquetes iban a ser de ti
 
 \subsection{Paquetes ARP}
 
-Como vimos en el desarrollo, definimos los símbolos de $S_1$ como las direcciones IP de origen y destino de los paquetes ARP. A diferencia de la fuente $S$, donde la cantidad de símbolos era reducida, aquí obtuvimos muchos mas resultados, por lo cual nos vimos obligados a tomar algún criterio de corte para poder graficar los datos. Particularmente elegimos graficar las direcciones que mas apariciones tuvieron, la razón de esto es que nos interesa verificar nuestra teoría expuesta en la sección anterior, para ello nos interesa la siguiente información:
+Como vimos en el desarrollo, definimos los símbolos de $S_1$ como las direcciones IP de origen y destino de los paquetes ARP. A diferencia de la fuente $S$, donde la cantidad de símbolos era reducida, aquí obtuvimos muchos mas resultados, por lo cual nos vimos obligados a tomar algún criterio de corte para poder graficar los datos. Particularmente elegimos poner en la tabla las direcciones que mas apariciones tuvieron, la razón de esto es que nos interesa verificar nuestra teoría expuesta en la sección anterior, para ello nos interesa la siguiente información:
 
 \begin{itemize}
 	\item La dirección que mas apariciones tuvo
@@ -229,7 +231,7 @@ Como vimos en el desarrollo, definimos los símbolos de $S_1$ como las direccion
 	\item Poder determinar si la dirección en cuestión efectivamente se corresponde a la del enrutador
 \end{itemize}
 
-Como podemos ver, si nos limitamos a las 10 direcciones que mas apariciones tuvieron en la red, cubrimos satisfactoriamente los primeros dos puntos. Lamentablemente para cubrir el tercero, no podemos emplear una red publica, ya que no poseemos conocimiento extensivo de la misma, es por ello que tomamos la red privada para poder dar una validación básica de nuestra teoría. Primero vamos a exponer los resultados en las redes publicas, y luego los contrastaremos con los obtenidos en la red hogareña.
+Como podemos ver, si nos limitamos a las direccion que provean menor cantidad de informacion que la entropia (es decir, usar la entropia como criterio de corte), cubrimos satisfactoriamente los primeros dos puntos. Lamentablemente para cubrir el tercero, no podemos emplear una red publica, ya que no poseemos conocimiento extensivo de la misma, es por ello que tomamos la red privada para poder dar una validación básica de nuestra teoría. Primero vamos a exponer los resultados en las redes publicas, y luego los contrastaremos con los obtenidos en la red hogareña.
 
 
 \subsubsection{Red Laboratorios DC y Red Plaza Oeste}
@@ -245,7 +247,7 @@ En este caso los resultados fueron:
 
 \begin{table}[H]
 \centering
-\caption{My caption}
+\caption{Red Plaza Oeste}
 \label{my-label}
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -266,7 +268,7 @@ Direccion IP  & Apariciones & Informacion & Apariciones / Total \\ \midrule
 
 \begin{table}[H]
 \centering
-\caption{My caption}
+\caption{Red Laboratorios DC}
 \label{my-label}
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -298,8 +300,7 @@ Direccion IP & Apariciones & Informacion        & Apariciones / Total 5566 \\ \m
 
 Una de las suposiciones que teníamos, era que por el funcionamiento de la red Wi-Fi, la gran mayoría de los paquetes irían dirigidos hacia un nodo principal, el cual después se encargaría de redirigirlos al destino apropiado. Como podemos ver, esto ocurrió en ambos casos, hay un nodo el cual tiene muchas mas apariciones que el resto.
 
-A pesar de que los resultados satisfacían nuestras expectativas, nos sorprendió que el margen de diferencia entre el nodo principal y el resto no sea mayor, con lo cual los otros nodos también están enviando paquetes ARP a nodos que no son el principal. Esto sera estudiado mas adelante, primero vamos a ver la información en ambos canales, nuevamente limitándonos a las diez direcciones que mas aparecieron:
-
+A pesar de que los resultados satisfacían nuestras expectativas, nos sorprendió que el margen de diferencia entre el nodo principal y el resto no sea mayor, con lo cual los otros nodos también están enviando paquetes ARP a nodos que no son el principal, esto sera estudiado mas adelante.
 %\begin{figure}[H]
 %\begin{center}
 %\includegraphics[width=0.8\columnwidth]{graficos/plaza_top_inf_s2.pdf}
@@ -347,7 +348,7 @@ Este ultimo punto es particularmente interesante para nosotros, ya que es posibl
 
 \begin{table}[H]
 \centering
-\caption{My caption}
+\caption{Red Plaza Oeste}
 \label{my-label}
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -366,7 +367,7 @@ Direccion IP & Apariciones & Informacion & Apariciones / Total \\ \midrule
 
 \begin{table}[H]
 \centering
-\caption{My caption}
+\caption{Red Laboratorios DC}
 \label{my-label}
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -429,7 +430,7 @@ En general, la red respondió de la manera que esperábamos, pudimos identificar
 
 \subsubsection{Red hogareña}
 
-Como era de esperar, los resultados en la red hogareña fueron considerablemente mas reducidos que en las redes publicas, con lo cual optamos por graficar la totalidad de las direcciones. Los resultados fueron las siguientes:
+Como era de esperar, los resultados en la red hogareña fueron considerablemente mas reducidos que en las redes publicas, con lo cual optamos por colocar la totalidad de las direcciones en la tabla. Los resultados fueron las siguientes:
 
 %\begin{figure}[H]
 %\begin{center}
@@ -447,7 +448,7 @@ Como era de esperar, los resultados en la red hogareña fueron considerablemente
 
 \begin{table}[H]
 \centering
-\caption{My caption}
+\caption{Red Hogareña}
 \label{my-label}
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -471,20 +472,20 @@ Direccion IP  & Apariciones & Informacion & Apariciones / Total \\ \midrule
 \end{tabular}
 \end{table}
 
-La entropia fue la siguiente:
+La entropia para esta red fue de 1.0057.
 
-\begin{table}[H]
-\centering
-\caption{Entropia}
-\label{my-label}
-\begin{tabular}{ll}
-\hline
-Red         & Entropia \\ \hline
-Red hogareña & 1.0057   \\
-\end{tabular}
-\end{table}
+%\begin{table}[H]
+%\centering
+%\caption{Entropia}
+%\label{my-label}
+%\begin{tabular}{ll}
+%\hline
+%Red         & Entropia \\ \hline
+%Red hogareña & 1.0057   \\
+%\end{tabular}
+%\end{table}
 
-Debido a que conocemos como esta formada esta red, sabemos que la dirección IP del enrutador es \texttt{192.168.0.1}. Si bien la direccion IP \texttt{192.168.0.102} tambien aparecio repetidas veces, esto se debe a que la computadora desde donde se tomo la muestra, ya que era uno de los pocos dispositivos conectados a la red activamente utilizando la misma, con lo cual su presencia fue mayor en la medición. Como podemos apreciar, utilizando el criterio expuesto anteriormente, vemos que el símbolo distinguido en la red es efectivamente la dirección IP \texttt{192.168.0.1}, con lo cual podemos dar una verificación básica de nuestra teoría, ya que el símbolo se corresponde con el enrutador.
+Debido a que conocemos como esta formada esta red, sabemos que la dirección IP del enrutador es \texttt{192.168.0.1}. Si bien la dirección IP \texttt{192.168.0.102} también apareció repetidas veces, esto se debe a que la computadora desde donde se tomo la muestra, ya que era uno de los pocos dispositivos conectados a la red activamente utilizando la misma, con lo cual su presencia fue mayor en la medición. Como podemos apreciar, utilizando el criterio expuesto anteriormente, vemos que el símbolo distinguido en la red es efectivamente la dirección IP \texttt{192.168.0.1}, con lo cual podemos dar una verificación básica de nuestra teoría, ya que el símbolo se corresponde con el enrutador.
 
 \subsection{Paquetes de control ARP}
 
